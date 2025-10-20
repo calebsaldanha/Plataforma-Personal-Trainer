@@ -1,0 +1,89 @@
+<%- include('../partials/header', { 
+    title: 'Gerenciar Clientes - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect Admin</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/clients" class="nav-item active">
+                <span>👥</span> Clientes
+            </a>
+            <a href="/admin/workouts/create" class="nav-item">
+                <span>💪</span> Criar Treino
+            </a>
+            <a href="/admin/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="section-header">
+            <h1>Gerenciar Clientes</h1>
+            <p>Visualize e gerencie todos os clientes da plataforma</p>
+        </div>
+
+        <% if (clients && clients.length > 0) { %>
+            <div class="clients-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Idade</th>
+                            <th>Peso</th>
+                            <th>Altura</th>
+                            <th>Objetivos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% clients.forEach(client => { %>
+                            <tr>
+                                <td><%= client.name %></td>
+                                <td><%= client.email %></td>
+                                <td><%= client.age || 'N/D' %></td>
+                                <td><%= client.weight ? client.weight + ' kg' : 'N/D' %></td>
+                                <td><%= client.height ? client.height + ' cm' : 'N/D' %></td>
+                                <td><%= client.goals || 'N/D' %></td>
+                                <td>
+                                    <a href="/admin/clients/<%= client.id %>" class="btn btn-primary btn-sm">
+                                        Ver Detalhes
+                                    </a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">👥</div>
+                <h3>Nenhum cliente cadastrado</h3>
+                <p>Os clientes aparecerão aqui após se cadastrarem na plataforma.</p>
+            </div>
+        <% } %>
+    </main>
+</div>
+
+<%- include('../partials/footer') %>

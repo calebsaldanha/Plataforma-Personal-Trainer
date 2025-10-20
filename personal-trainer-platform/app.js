@@ -67,8 +67,8 @@ app.use((req, res) => {
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(\Servidor rodando na porta \\);
-    console.log(\Acesse: http://localhost:\\);
+    console.log('Servidor rodando na porta ' + PORT);
+    console.log('Acesse: http://localhost:' + PORT);
   });
 }
 
