@@ -1,0 +1,93 @@
+/* CORREÇÕES URGENTES - FIXES.CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ESTRUTURA PRINCIPAL CORRIGIDA */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* HEADER FIXO */
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* CONTEÚDO PRINCIPAL */
+main {
+    flex: 1;
+    margin-top: 80px; /* Espaço para o header fixo */
+    width: 100%;
+}
+
+/* PÁGINAS DE AUTENTICAÇÃO */
+body.auth-body {
+    background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 0;
+}
+
+body.auth-body .header,
+body.auth-body .footer {
+    display: none !important;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+}
+
+/* PÁGINAS DE CONTEÚDO */
+.content-page {
+    min-height: 60vh;
+    padding: 2rem 0;
+}
+
+/* FOOTER SEMPRE NO FINAL */
+.footer {
+    margin-top: auto;
+    background: #212529;
+    color: white;
+    padding: 2rem 0 1rem;
+}
+
+/* GARANTIR QUE CONTAINERS TENHAM LARGURA */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* CORREÇÕES RESPONSIVAS */
+@media (max-width: 768px) {
+    main {
+        margin-top: 70px;
+    }
+    
+    .auth-container {
+        padding: 10px;
+    }
+}

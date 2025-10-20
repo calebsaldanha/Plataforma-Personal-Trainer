@@ -5,15 +5,17 @@ const router = express.Router();
 router.get('/', (req, res) => {
     res.render('pages/index', {
         user: req.session ? req.session.user : null,
-        isAuthenticated: !!(req.session && req.session.user)
+        isAuthenticated: !!(req.session && req.session.user),
+        title: 'FitConnect - Sua Plataforma de Treino Personalizado'
     });
 });
 
 // Página de artigos
 router.get('/articles', (req, res) => {
-    res.render('pages/articles', {
+    res.render('pages/articles-content', {
         user: req.session ? req.session.user : null,
-        isAuthenticated: !!(req.session && req.session.user)
+        isAuthenticated: !!(req.session && req.session.user),
+        title: 'Artigos e Dicas - FitConnect'
     });
 });
 
@@ -21,7 +23,8 @@ router.get('/articles', (req, res) => {
 router.get('/about', (req, res) => {
     res.render('pages/about', {
         user: req.session ? req.session.user : null,
-        isAuthenticated: !!(req.session && req.session.user)
+        isAuthenticated: !!(req.session && req.session.user),
+        title: 'Sobre - FitConnect'
     });
 });
 
