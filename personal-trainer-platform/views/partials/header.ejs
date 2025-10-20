@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'FitConnect - Plataforma de Personal Trainer' %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="<%= bodyClass || '' %>">
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2>FitConnect</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#about" class="nav-link">Como Funciona</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#features" class="nav-link">Benefícios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#trainer" class="nav-link">Personal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/articles" class="nav-link">Artigos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#contact" class="nav-link">Contato</a>
+                    </li>
+                    <% if (isAuthenticated) { %>
+                        <li class="nav-item">
+                            <span class="nav-link">Olá, <%= user.name %>!</span>
+                        </li>
+                        <li class="nav-item">
+                            <form action="/auth/logout" method="POST" class="logout-form">
+                                <button type="submit" class="nav-link login-btn">Sair</button>
+                            </form>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a href="/auth/login" class="nav-link login-btn">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/auth/register" class="nav-link register-btn">Cadastre-se</a>
+                        </li>
+                    <% } %>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>

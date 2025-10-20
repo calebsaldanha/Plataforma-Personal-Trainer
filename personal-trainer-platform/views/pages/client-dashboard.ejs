@@ -1,0 +1,157 @@
+<%- include('../partials/header', { 
+    title: 'Dashboard - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<!-- Header Dashboard -->
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/client/dashboard" class="nav-item active">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/client/workouts" class="nav-item">
+                <span>💪</span> Meus Treinos
+            </a>
+            <a href="/client/chat" class="nav-item">
+                <span>💬</span> Chat
+                <% if (unreadCount > 0) { %>
+                    <span class="badge"><%= unreadCount %></span>
+                <% } %>
+            </a>
+            <a href="/client/progress" class="nav-item">
+                <span>📈</span> Meu Progresso
+            </a>
+            <a href="/client/profile" class="nav-item">
+                <span>👤</span> Meu Perfil
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Meu Dashboard</h1>
+            <p>Bem-vindo de volta! Aqui está seu resumo.</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💪</div>
+                <div class="stat-info">
+                    <h3><%= workouts ? workouts.length : 0 %></h3>
+                    <p>Treinos Ativos</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3><%= checkins ? checkins.filter(c => c.completed).length : 0 %></h3>
+                    <p>Treinos Concluídos</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3><%= checkins ? checkins.length : 0 %></h3>
+                    <p>Check-ins Realizados</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-info">
+                    <h3><%= profile ? profile.goals : 'N/D' %></h3>
+                    <p>Seus Objetivos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meus Treinos -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Meus Treinos</h2>
+                <a href="/client/workouts" class="btn btn-outline">Ver Todos</a>
+            </div>
+
+            <% if (workouts && workouts.length > 0) { %>
+                <div class="workouts-grid">
+                    <% workouts.slice(0, 3).forEach(workout => { %>
+                        <div class="workout-card">
+                            <div class="workout-header">
+                                <h3><%= workout.title %></h3>
+                                <span class="workout-status active">Ativo</span>
+                            </div>
+                            <p class="workout-desc"><%= workout.description %></p>
+                            <div class="workout-actions">
+                                <a href="/client/workout/<%= workout.id %>" class="btn btn-primary btn-sm">
+                                    Ver Treino
+                                </a>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">💪</div>
+                    <h3>Nenhum treino encontrado</h3>
+                    <p>Seu personal trainer ainda não criou nenhum treino para você.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Check-ins Recentes -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Check-ins Recentes</h2>
+            </div>
+
+            <% if (checkins && checkins.length > 0) { %>
+                <div class="checkins-list">
+                    <% checkins.forEach(checkin => { %>
+                        <div class="checkin-item">
+                            <div class="checkin-header">
+                                <h4><%= checkin.title %></h4>
+                                <span class="checkin-date">
+                                    <%= new Date(checkin.created_at).toLocaleDateString('pt-BR') %>
+                                </span>
+                            </div>
+                            <div class="checkin-status <%= checkin.completed ? 'completed' : 'skipped' %>">
+                                <%= checkin.completed ? '✅ Concluído' : '⏭️ Pulado' %>
+                            </div>
+                            <% if (checkin.notes) { %>
+                                <p class="checkin-notes"><%= checkin.notes %></p>
+                            <% } %>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <h3>Nenhum check-in realizado</h3>
+                    <p>Comece a fazer check-ins nos seus treinos para acompanhar seu progresso.</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+</div>
+
+<script src="/js/client-dashboard.js"></script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,156 @@
+<%- include('../partials/header', { 
+    title: 'Dashboard Admin - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<!-- Header Dashboard -->
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect Admin</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item active">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/clients" class="nav-item">
+                <span>👥</span> Clientes
+            </a>
+            <a href="/admin/workouts/create" class="nav-item">
+                <span>💪</span> Criar Treino
+            </a>
+            <a href="/admin/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+            <a href="/admin/analytics" class="nav-item">
+                <span>📈</span> Analytics
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Dashboard Admin</h1>
+            <p>Visão geral da sua plataforma</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3><%= stats.totalClients %></h3>
+                    <p>Total de Clientes</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💪</div>
+                <div class="stat-info">
+                    <h3><%= stats.totalWorkouts %></h3>
+                    <p>Treinos Criados</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3><%= stats.weeklyCheckins %></h3>
+                    <p>Check-ins (7 dias)</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-info">
+                    <h3>100%</h3>
+                    <p>Plataforma Ativa</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clientes Recentes -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Clientes Recentes</h2>
+                <a href="/admin/clients" class="btn btn-outline">Ver Todos</a>
+            </div>
+
+            <% if (recentClients && recentClients.length > 0) { %>
+                <div class="clients-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Idade</th>
+                                <th>Objetivos</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% recentClients.forEach(client => { %>
+                                <tr>
+                                    <td><%= client.name %></td>
+                                    <td><%= client.email %></td>
+                                    <td><%= client.age || 'N/D' %></td>
+                                    <td><%= client.goals || 'N/D' %></td>
+                                    <td>
+                                        <a href="/admin/clients/<%= client.id %>" class="btn btn-primary btn-sm">
+                                            Ver Detalhes
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">👥</div>
+                    <h3>Nenhum cliente cadastrado</h3>
+                    <p>Os clientes aparecerão aqui após se cadastrarem na plataforma.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Ações Rápidas</h2>
+            </div>
+            <div class="quick-actions">
+                <a href="/admin/workouts/create" class="quick-action-card">
+                    <div class="action-icon">💪</div>
+                    <h3>Criar Treino</h3>
+                    <p>Crie um novo treino personalizado para um cliente</p>
+                </a>
+                <a href="/admin/chat" class="quick-action-card">
+                    <div class="action-icon">💬</div>
+                    <h3>Ver Mensagens</h3>
+                    <p>Responda às dúvidas dos seus clientes</p>
+                </a>
+                <a href="/admin/clients" class="quick-action-card">
+                    <div class="action-icon">👥</div>
+                    <h3>Gerenciar Clientes</h3>
+                    <p>Veja e edite informações dos clientes</p>
+                </a>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="/js/admin-dashboard.js"></script>
+<%- include('../partials/footer') %>

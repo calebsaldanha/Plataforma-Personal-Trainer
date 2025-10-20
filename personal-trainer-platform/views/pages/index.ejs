@@ -1,0 +1,217 @@
+<%- include('../partials/header', { 
+    title: 'FitConnect - Sua Plataforma de Treino Personalizado',
+    bodyClass: 'home-page'
+}) %>
+
+<!-- Hero Section -->
+<section id="home" class="hero">
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1 class="hero-title">Transforme Sua Vida Com Treinos Personalizados</h1>
+            <p class="hero-subtitle">Conecte-se com um personal trainer qualificado e alcance seus objetivos de forma eficiente e segura.</p>
+            <div class="hero-buttons">
+                <% if (!isAuthenticated) { %>
+                    <a href="/auth/register" class="btn btn-primary">Começar Agora</a>
+                <% } else if (user.role === 'client') { %>
+                    <a href="/client/dashboard" class="btn btn-primary">Meu Dashboard</a>
+                <% } else { %>
+                    <a href="/admin/dashboard" class="btn btn-primary">Dashboard Admin</a>
+                <% } %>
+                <a href="/#about" class="btn btn-secondary">Saiba Mais</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="/images/hero-image.svg" alt="Pessoa se exercitando" onerror="this.style.display='none'">
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about">
+    <div class="container">
+        <h2 class="section-title">Como Funciona</h2>
+        <div class="about-steps">
+            <div class="step">
+                <div class="step-icon">1</div>
+                <h3>Cadastre-se</h3>
+                <p>Crie sua conta e preencha o formulário com seus dados e objetivos</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">2</div>
+                <h3>Receba Seu Treino</h3>
+                <p>Seu personal trainer criará um plano de treino personalizado</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">3</div>
+                <h3>Execute e Acompanhe</h3>
+                <p>Realize seus treinos, acompanhe evolução e tire dúvidas</p>
+            </div>
+            <div class="step">
+                <div class="step-icon">4</div>
+                <h3>Evolua Constantemente</h3>
+                <p>Receba ajustes no treino conforme sua evolução</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <div class="container">
+        <h2 class="section-title">Benefícios da Plataforma</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💪</div>
+                <h3>Treinos Personalizados</h3>
+                <p>Planos de treino criados exclusivamente para você</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Acompanhamento de Evolução</h3>
+                <p>Monitore seu progresso com gráficos e métricas</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h3>Chat com Personal</h3>
+                <p>Tire suas dúvidas diretamente com seu treinador</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Acesso em Qualquer Lugar</h3>
+                <p>Plataforma responsiva para todos os dispositivos</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>Relatórios Detalhados</h3>
+                <p>Exporte relatórios completos do seu progresso</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Objetivos Claros</h3>
+                <p>Defina e alcance metas específicas</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trainer Section -->
+<section id="trainer" class="trainer">
+    <div class="container">
+        <div class="trainer-content">
+            <div class="trainer-info">
+                <h2 class="section-title">Seu Personal Trainer</h2>
+                <div class="trainer-profile">
+                    <div class="trainer-avatar">
+                        <div style="width:200px;height:200px;background:#4361ee;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:3rem;">👤</div>
+                    </div>
+                    <div class="trainer-details">
+                        <h3>Seu Nome Aqui</h3>
+                        <p class="trainer-cert">Personal Trainer Certificado</p>
+                        <p class="trainer-bio">
+                            Com anos de experiência na área de educação física, 
+                            meu objetivo é ajudar você a alcançar seus objetivos de 
+                            forma segura e eficiente. Acredito que cada pessoa é única 
+                            e merece um plano de treino personalizado.
+                        </p>
+                        <div class="trainer-stats">
+                            <div class="stat">
+                                <span class="stat-number">+500</span>
+                                <span class="stat-label">Clientes Atendidos</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">+5</span>
+                                <span class="stat-label">Anos de Experiência</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">100%</span>
+                                <span class="stat-label">Dedicado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Articles Preview Section -->
+<section id="articles" class="articles">
+    <div class="container">
+        <h2 class="section-title">Artigos e Dicas Recentes</h2>
+        <div class="articles-grid">
+            <article class="article-card">
+                <div class="article-image">
+                    <div style="width:100%;height:200px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#6c757d;">📝</div>
+                </div>
+                <div class="article-content">
+                    <h3>10 Dicas para Manter a Motivação nos Treinos</h3>
+                    <p>Descubra estratégias para manter a consistência nos seus treinos e alcançar seus objetivos...</p>
+                    <a href="#" class="article-link">Ler mais</a>
+                </div>
+            </article>
+            <article class="article-card">
+                <div class="article-image">
+                    <div style="width:100%;height:200px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#6c757d;">🥗</div>
+                </div>
+                <div class="article-content">
+                    <h3>Importância da Alimentação no Treino</h3>
+                    <p>Como a nutrição adequada pode potencializar seus resultados e melhorar seu desempenho...</p>
+                    <a href="#" class="article-link">Ler mais</a>
+                </div>
+            </article>
+            <article class="article-card">
+                <div class="article-image">
+                    <div style="width:100%;height:200px;background:#e9ecef;display:flex;align-items:center;justify-content:center;color:#6c757d;">🛡️</div>
+                </div>
+                <div class="article-content">
+                    <h3>Como Prevenir Lesões Durante o Treino</h3>
+                    <p>Conheça as técnicas para treinar com segurança e evitar lesões durante seus exercícios...</p>
+                    <a href="#" class="article-link">Ler mais</a>
+                </div>
+            </article>
+        </div>
+        <div class="articles-more">
+            <a href="/articles" class="btn btn-outline">Ver Todos os Artigos</a>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="contact">
+    <div class="container">
+        <h2 class="section-title">Entre em Contato</h2>
+        <div class="contact-content">
+            <div class="contact-info">
+                <h3>Fale Conosco</h3>
+                <div class="contact-item">
+                    <span class="contact-icon">📧</span>
+                    <span>contato@fitconnect.com</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-icon">📱</span>
+                    <span>(11) 99999-9999</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-icon">📍</span>
+                    <span>São Paulo, SP</span>
+                </div>
+            </div>
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <input type="text" placeholder="Seu Nome" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" placeholder="Seu E-mail" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea placeholder="Sua Mensagem" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar Mensagem</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('../partials/footer') %>
