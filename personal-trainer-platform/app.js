@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/chat', require('./routes/chat'));
+app.use('/client', require('./routes/workouts'));
+app.use('/admin', require('./routes/workouts'));
+app.use('/', require('./routes/articles'));
 
 // Session configuration
 app.use(session({
