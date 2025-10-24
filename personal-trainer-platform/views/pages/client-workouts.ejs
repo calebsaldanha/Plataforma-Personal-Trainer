@@ -1,0 +1,239 @@
+<%- include('../partials/header', { 
+    title: 'Meus Treinos - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/client/dashboard" class="nav-item">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/client/workouts" class="nav-item active">
+                <span>💪</span> Meus Treinos
+            </a>
+            <a href="/client/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="section-header">
+            <h1>Meus Treinos</h1>
+            <p>Gerencie e acompanhe seus treinos personalizados</p>
+        </div>
+
+        <% if (workouts && workouts.length > 0) { %>
+            <div class="workouts-grid">
+                <% workouts.forEach(workout => { %>
+                    <div class="workout-card">
+                        <div class="workout-header">
+                            <h3><%= workout.title %></h3>
+                            <span class="workout-status active">Ativo</span>
+                        </div>
+                        <div class="workout-meta">
+                            <span class="trainer-name">Por: <%= workout.trainer_name %></span>
+                            <span class="workout-date">
+                                <%= new Date(workout.created_at).toLocaleDateString('pt-BR') %>
+                            </span>
+                        </div>
+                        <p class="workout-desc"><%= workout.description || 'Sem descrição' %></p>
+                        <div class="workout-actions">
+                            <a href="/client/workout/<%= workout.id %>" class="btn btn-primary btn-sm">
+                                Ver Treino
+                            </a>
+                            <button class="btn btn-outline btn-sm quick-checkin" data-workout-id="<%= workout.id %>">
+                                Check-in Rápido
+                            </button>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">💪</div>
+                <h3>Nenhum treino encontrado</h3>
+                <p>Seu personal trainer ainda não criou nenhum treino para você.</p>
+                <a href="/client/chat" class="btn btn-primary">Solicitar Treino</a>
+            </div>
+        <% } %>
+    </main>
+</div>
+
+<!-- Modal de Check-in Rápido -->
+<div id="checkinModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Check-in do Treino</h3>
+            <span class="close">&times;</span>
+        </div>
+        <form id="quickCheckinForm">
+            <input type="hidden" name="workout_id" id="checkinWorkoutId">
+            <div class="form-group">
+                <label>Status do Treino</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="completed" value="true" checked>
+                        <span>✅ Concluído</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="completed" value="false">
+                        <span>⏭️ Não Realizado</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="rating">Avaliação (1-5)</label>
+                <select id="rating" name="rating">
+                    <option value="5">⭐️⭐️⭐️⭐️⭐️ (5)</option>
+                    <option value="4">⭐️⭐️⭐️⭐️ (4)</option>
+                    <option value="3">⭐️⭐️⭐️ (3)</option>
+                    <option value="2">⭐️⭐️ (2)</option>
+                    <option value="1">⭐️ (1)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="notes">Observações</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="Como foi o treino? Alguma dificuldade?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Registrar Check-in</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Modal de check-in
+    const modal = document.getElementById('checkinModal');
+    const closeBtn = document.querySelector('.close');
+    const quickCheckinBtns = document.querySelectorAll('.quick-checkin');
+
+    quickCheckinBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const workoutId = this.dataset.workoutId;
+            document.getElementById('checkinWorkoutId').value = workoutId;
+            modal.style.display = 'block';
+        });
+    });
+
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Formulário de check-in
+    document.getElementById('quickCheckinForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const workoutId = formData.get('workout_id');
+
+        try {
+            const response = await fetch(`/client/workout/${workoutId}/checkin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    completed: formData.get('completed') === 'true',
+                    rating: parseInt(formData.get('rating')),
+                    notes: formData.get('notes')
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showNotification('Check-in registrado com sucesso!', 'success');
+                modal.style.display = 'none';
+                this.reset();
+            } else {
+                showNotification('Erro ao registrar check-in', 'error');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            showNotification('Erro ao registrar check-in', 'error');
+        }
+    });
+
+    function showNotification(message, type) {
+        // Implementação da notificação
+        alert(`${type}: ${message}`);
+    }
+</script>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 0;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+    }
+
+    .close {
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6c757d;
+    }
+
+    .modal-content form {
+        padding: 1.5rem;
+    }
+
+    .workout-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,418 @@
+<%- include('../partials/header', { 
+    title: 'Chat - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <% if (user.role === 'client') { %>
+                <a href="/client/dashboard" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/client/workouts" class="nav-item">
+                    <span>💪</span> Meus Treinos
+                </a>
+                <a href="/client/chat" class="nav-item active">
+                    <span>💬</span> Chat
+                </a>
+            <% } else { %>
+                <a href="/admin/dashboard" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/admin/clients" class="nav-item">
+                    <span>👥</span> Clientes
+                </a>
+                <a href="/admin/chat" class="nav-item active">
+                    <span>💬</span> Chat
+                </a>
+            <% } %>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="chat-container-full">
+            <div class="chat-header">
+                <h1>Chat</h1>
+                <p>Converse com <%= user.role === 'client' ? 'seu personal trainer' : 'seus clientes' %></p>
+            </div>
+
+            <div class="chat-layout">
+                <!-- Lista de usuários -->
+                <div class="chat-users">
+                    <h3><%= user.role === 'client' ? 'Personal Trainer' : 'Clientes' %></h3>
+                    <div class="users-list">
+                        <% users.forEach(chatUser => { %>
+                            <div class="user-item" data-user-id="<%= chatUser.id %>">
+                                <div class="user-avatar">
+                                    <span>👤</span>
+                                </div>
+                                <div class="user-info">
+                                    <h4><%= chatUser.name %></h4>
+                                    <span class="user-status online">Online</span>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Área de mensagens -->
+                <div class="chat-messages-area">
+                    <div class="messages-header">
+                        <h3 id="currentChatUser">
+                            <%= user.role === 'client' ? 
+                                'Personal Trainer' : 
+                                'Selecione um cliente para conversar' %>
+                        </h3>
+                    </div>
+
+                    <div class="messages-container" id="messagesContainer">
+                        <% if (!selectedUser) { %>
+                            <div class="empty-chat">
+                                <div class="empty-icon">💬</div>
+                                <h3>Selecione uma conversa</h3>
+                                <p>Escolha um <%= user.role === 'client' ? 'personal trainer' : 'cliente' %> para começar a conversar</p>
+                            </div>
+                        <% } else { %>
+                            <% messages.forEach(message => { %>
+                                <div class="message <%= message.sender_id === user.id ? 'own-message' : 'other-message' %>">
+                                    <div class="message-content">
+                                        <p><%= message.message %></p>
+                                        <span class="message-time">
+                                            <%= new Date(message.created_at).toLocaleTimeString('pt-BR', { 
+                                                hour: '2-digit', 
+                                                minute: '2-digit' 
+                                            }) %>
+                                        </span>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } %>
+                    </div>
+
+                    <div class="message-input-container">
+                        <form id="chatForm" class="message-form">
+                            <input 
+                                type="text" 
+                                name="message" 
+                                placeholder="Digite sua mensagem..." 
+                                required
+                                <%= !selectedUser ? 'disabled' : '' %>
+                            >
+                            <button type="submit" <%= !selectedUser ? 'disabled' : '' %>>Enviar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    let currentReceiverId = null;
+
+    // Selecionar usuário para chat
+    document.querySelectorAll('.user-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const userId = this.dataset.userId;
+            const userName = this.querySelector('h4').textContent;
+            
+            currentReceiverId = userId;
+            document.getElementById('currentChatUser').textContent = userName;
+            document.querySelector('input[name="message"]').disabled = false;
+            document.querySelector('#chatForm button').disabled = false;
+
+            // Carregar mensagens
+            loadMessages(userId);
+        });
+    });
+
+    // Enviar mensagem
+    document.getElementById('chatForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!currentReceiverId) return;
+
+        const messageInput = this.querySelector('input[name="message"]');
+        const message = messageInput.value.trim();
+
+        if (!message) return;
+
+        try {
+            const response = await fetch('/chat/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    receiver_id: currentReceiverId
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                messageInput.value = '';
+                loadMessages(currentReceiverId);
+            } else {
+                showNotification('Erro ao enviar mensagem', 'error');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            showNotification('Erro ao enviar mensagem', 'error');
+        }
+    });
+
+    // Carregar mensagens
+    async function loadMessages(receiverId) {
+        try {
+            const response = await fetch(`/chat/messages/${receiverId}`);
+            const result = await response.json();
+
+            if (result.success) {
+                updateMessagesDisplay(result.messages);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar mensagens:', error);
+        }
+    }
+
+    // Atualizar display das mensagens
+    function updateMessagesDisplay(messages) {
+        const container = document.getElementById('messagesContainer');
+        container.innerHTML = '';
+
+        messages.forEach(message => {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${message.sender_id === <%= user.id %> ? 'own-message' : 'other-message'}`;
+            
+            messageElement.innerHTML = `
+                <div class="message-content">
+                    <p>${message.message}</p>
+                    <span class="message-time">
+                        ${new Date(message.created_at).toLocaleTimeString('pt-BR', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        })}
+                    </span>
+                </div>
+            `;
+            
+            container.appendChild(messageElement);
+        });
+
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        const container = document.getElementById('messagesContainer');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Auto-refresh das mensagens
+    setInterval(() => {
+        if (currentReceiverId) {
+            loadMessages(currentReceiverId);
+        }
+    }, 3000);
+
+    // Função de notificação
+    function showNotification(message, type = 'info') {
+        // Implementação da função de notificação
+        console.log(`${type}: ${message}`);
+    }
+</script>
+
+<style>
+    .chat-container-full {
+        height: calc(100vh - 200px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1rem;
+        height: 100%;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    .chat-users {
+        border-right: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+
+    .chat-users h3 {
+        padding: 1rem;
+        margin: 0;
+        border-bottom: 1px solid #e9ecef;
+        background: white;
+    }
+
+    .users-list {
+        padding: 0.5rem;
+    }
+
+    .user-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .user-item:hover {
+        background: #e9ecef;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #4361ee;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .user-info h4 {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .user-status {
+        font-size: 0.75rem;
+        color: #28a745;
+    }
+
+    .chat-messages-area {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .messages-header {
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+        background: white;
+    }
+
+    .messages-header h3 {
+        margin: 0;
+    }
+
+    .messages-container {
+        flex: 1;
+        padding: 1rem;
+        overflow-y: auto;
+        background: #f8f9fa;
+    }
+
+    .message {
+        margin-bottom: 1rem;
+        display: flex;
+    }
+
+    .own-message {
+        justify-content: flex-end;
+    }
+
+    .other-message {
+        justify-content: flex-start;
+    }
+
+    .message-content {
+        max-width: 70%;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        position: relative;
+    }
+
+    .own-message .message-content {
+        background: #4361ee;
+        color: white;
+    }
+
+    .other-message .message-content {
+        background: white;
+        color: #343a40;
+        border: 1px solid #e9ecef;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .message-input-container {
+        padding: 1rem;
+        border-top: 1px solid #e9ecef;
+        background: white;
+    }
+
+    .message-form {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .message-form input {
+        flex: 1;
+        padding: 0.75rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        font-family: inherit;
+    }
+
+    .message-form button {
+        padding: 0.75rem 1.5rem;
+        background: #4361ee;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .message-form button:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .empty-chat {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #6c757d;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<%- include('../partials/footer') %>
