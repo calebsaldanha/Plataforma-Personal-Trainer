@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || 'Erro - FitConnect' %></title>
+    <title>Erro - FitConnect</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/fixes.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header Simplificado para páginas de erro -->
+    <!-- Header Simplificado -->
     <header class="header">
         <nav class="navbar">
             <div class="nav-container">
                 <div class="nav-logo">
-                    <h2>FitConnect</h2>
+                    <h2><a href="/" style="color: #4361ee; text-decoration: none;">FitConnect</a></h2>
                 </div>
                 <ul class="nav-menu">
                     <li class="nav-item">
@@ -23,23 +23,6 @@
                     <li class="nav-item">
                         <a href="/articles" class="nav-link">Artigos</a>
                     </li>
-                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
-                        <li class="nav-item">
-                            <span class="nav-link">Olá, <%= user.name %>!</span>
-                        </li>
-                        <li class="nav-item">
-                            <form action="/auth/logout" method="POST" class="logout-form">
-                                <button type="submit" class="nav-link login-btn">Sair</button>
-                            </form>
-                        </li>
-                    <% } else { %>
-                        <li class="nav-item">
-                            <a href="/auth/login" class="nav-link login-btn">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/auth/register" class="nav-link register-btn">Cadastre-se</a>
-                        </li>
-                    <% } %>
                 </ul>
             </div>
         </nav>
@@ -48,15 +31,15 @@
     <main class="main-content">
         <div class="container" style="padding-top: 120px; text-align: center; min-height: 60vh;">
             <h1>Oops! Algo deu errado</h1>
-            <p style="font-size: 1.2rem; margin-bottom: 2rem;"><%= message %></p>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
+                <% if (typeof message !== 'undefined') { %>
+                    <%= message %>
+                <% } else { %>
+                    Ocorreu um erro inesperado na aplicação.
+                <% } %>
+            </p>
             <a href="/" class="btn btn-primary">Voltar para a página inicial</a>
-            
-            <% if (error && Object.keys(error).length > 0) { %>
-                <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: left;">
-                    <h3>Detalhes do erro:</h3>
-                    <pre style="white-space: pre-wrap; font-family: monospace;"><%= JSON.stringify(error, null, 2) %></pre>
-                </div>
-            <% } %>
+            <a href="/articles" class="btn btn-outline" style="margin-left: 1rem;">Ver Artigos</a>
         </div>
     </main>
 
@@ -72,13 +55,6 @@
                     <ul>
                         <li><a href="/">Início</a></li>
                         <li><a href="/articles">Artigos</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contato</h4>
-                    <ul>
-                        <li>contato@fitconnect.com</li>
-                        <li>(11) 99999-9999</li>
                     </ul>
                 </div>
             </div>
