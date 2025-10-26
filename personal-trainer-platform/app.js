@@ -4,6 +4,7 @@ const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const bodyParser = require('body-parser');
 const { db, init } = require('./database/db');
+const { seedData } = require('./database/seed'); // ← ADICIONAR ESTA LINHA
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,6 +53,13 @@ app.use('/', require('./routes/articles'));
 
 // Database initialization
 init();
+
+// Seed data (apenas em desenvolvimento)
+if (process.env.NODE_ENV !== 'production') {
+  setTimeout(() => {
+    seedData();
+  }, 1000);
+}
 
 // Error handling
 app.use((err, req, res, next) => {
