@@ -1,227 +1,506 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title || 'Artigos e Dicas - FitConnect' %></title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/fixes.css">
-    <link rel="stylesheet" href="/css/dashboard.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="home-page">
-    <!-- Header -->
-    <header class="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-logo">
-                    <h2>FitConnect</h2>
-                </div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="/" class="nav-link">Início</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/#about" class="nav-link">Como Funciona</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/#features" class="nav-link">Benefícios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/#trainer" class="nav-link">Personal</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/articles" class="nav-link active">Artigos</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/#contact" class="nav-link">Contato</a>
-                    </li>
-                    <% if (isAuthenticated) { %>
-                        <li class="nav-item">
-                            <span class="nav-link">Olá, <%= user.name %>!</span>
-                        </li>
-                        <li class="nav-item">
-                            <form action="/auth/logout" method="POST" class="logout-form">
-                                <button type="submit" class="nav-link login-btn">Sair</button>
-                            </form>
-                        </li>
-                    <% } else { %>
-                        <li class="nav-item">
-                            <a href="/auth/login" class="nav-link login-btn">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/auth/register" class="nav-link register-btn">Cadastre-se</a>
-                        </li>
-                    <% } %>
-                </ul>
-                <div class="hamburger">
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                    <span class="bar"></span>
-                </div>
-            </div>
-        </nav>
-    </header>
+<%- include('../partials/header', { 
+    title: 'Artigos e Dicas - FitConnect',
+    bodyClass: ''
+}) %>
 
-    <main class="main-content">
-        <!-- Hero Section para Artigos -->
-        <section class="hero" style="background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); padding: 100px 0 60px; margin-top: 0;">
-            <div class="container">
-                <div class="hero-content" style="text-align: center;">
-                    <h1 class="hero-title" style="color: white; margin-bottom: 1rem;">Artigos & Dicas</h1>
-                    <p class="hero-subtitle" style="color: white; opacity: 0.9; font-size: 1.2rem;">
-                        Conteúdo exclusivo para melhorar seu desempenho e conhecimento
-                    </p>
-                    
-                    <% if (user && user.role === 'trainer') { %>
-                        <div style="margin-top: 2rem;">
-                            <a href="/articles/create" class="btn btn-primary">Criar Novo Artigo</a>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
-        </section>
+<div class="articles-page">
+    <div class="container">
+        <!-- Cabeçalho -->
+        <div class="articles-header">
+            <h1>Artigos e Dicas</h1>
+            <p>Conteúdo exclusivo para melhorar seu desempenho e conhecimento</p>
+            
+            <% if (user && user.role === 'trainer') { %>
+                <a href="/articles/create" class="btn btn-primary">Criar Novo Artigo</a>
+            <% } else if (!user) { %>
+                <a href="/auth/register" class="btn btn-primary">Junte-se à Comunidade</a>
+            <% } %>
+        </div>
 
-        <!-- Conteúdo Principal -->
-        <section class="articles-section" style="padding: 60px 0;">
-            <div class="container">
-                <!-- Filtros por Categoria -->
-                <div class="articles-filters" style="margin-bottom: 3rem;">
-                    <h3 style="text-align: center; margin-bottom: 1.5rem; color: #343a40;">Categorias</h3>
-                    <div class="categories-list" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem;">
-                        <a href="/articles" class="category-tag <%= !currentCategory ? 'active' : '' %>" 
-                           style="padding: 0.5rem 1.5rem; background: <%= !currentCategory ? '#4361ee' : '#f8f9fa' %>; 
-                                  color: <%= !currentCategory ? 'white' : '#6c757d' %>; text-decoration: none; 
-                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
-                            Todos
-                        </a>
-                        <a href="/articles/category/treinamento" class="category-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>"
-                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'treinamento' ? '#4361ee' : '#f8f9fa' %>; 
-                                  color: <%= currentCategory === 'treinamento' ? 'white' : '#6c757d' %>; text-decoration: none; 
-                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
-                            🏋️ Treinamento
-                        </a>
-                        <a href="/articles/category/nutricao" class="category-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>"
-                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'nutricao' ? '#4361ee' : '#f8f9fa' %>; 
-                                  color: <%= currentCategory === 'nutricao' ? 'white' : '#6c757d' %>; text-decoration: none; 
-                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
-                            🥗 Nutrição
-                        </a>
-                        <a href="/articles/category/saude" class="category-tag <%= currentCategory === 'saude' ? 'active' : '' %>"
-                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'saude' ? '#4361ee' : '#f8f9fa' %>; 
-                                  color: <%= currentCategory === 'saude' ? 'white' : '#6c757d' %>; text-decoration: none; 
-                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
-                            ❤️ Saúde
-                        </a>
-                        <a href="/articles/category/motivacao" class="category-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>"
-                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'motivacao' ? '#4361ee' : '#f8f9fa' %>; 
-                                  color: <%= currentCategory === 'motivacao' ? 'white' : '#6c757d' %>; text-decoration: none; 
-                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
-                            💪 Motivação
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Grid de Artigos -->
-                <% if (articles && articles.length > 0) { %>
-                    <div class="articles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
-                        <% articles.forEach(article => { %>
-                            <article class="article-card" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-                                <div class="article-image" style="height: 200px; background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); display: flex; align-items: flex-end; justify-content: flex-end; padding: 1rem; position: relative;">
-                                    <div class="article-category" 
-                                         style="background: rgba(255,255,255,0.9); color: #4361ee; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                                        <%= article.category ? 
-                                            (article.category === 'treinamento' ? '🏋️' :
-                                             article.category === 'nutricao' ? '🥗' :
-                                             article.category === 'saude' ? '❤️' :
-                                             article.category === 'motivacao' ? '💪' : '📝') 
-                                            : '📝' %>
-                                        <%= article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : 'Geral' %>
-                                    </div>
-                                </div>
-                                <div class="article-content" style="padding: 1.5rem;">
-                                    <h3 style="margin: 0 0 1rem 0; color: #343a40; line-height: 1.4; font-size: 1.2rem;">
-                                        <%= article.title %>
-                                    </h3>
-                                    <p class="article-excerpt" style="color: #6c757d; line-height: 1.6; margin-bottom: 1rem;">
-                                        <%= article.content.length > 120 ? 
-                                            article.content.substring(0, 120) + '...' : 
-                                            article.content %>
-                                    </p>
-                                    <div class="article-meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 0.9rem; color: #6c757d;">
-                                        <span class="article-author" style="font-weight: 600;">
-                                            Por <%= article.author_name %>
-                                        </span>
-                                        <span class="article-date">
-                                            <%= new Date(article.created_at).toLocaleDateString('pt-BR') %>
-                                        </span>
-                                    </div>
-                                    <a href="/article/<%= article.id %>" class="article-link" 
-                                       style="color: #4361ee; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
-                                        Ler mais →
-                                    </a>
-                                </div>
-                            </article>
-                        <% }); %>
-                    </div>
-                <% } else { %>
-                    <div class="empty-state" style="text-align: center; padding: 3rem 2rem; color: #6c757d;">
-                        <div class="empty-icon" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;">📝</div>
-                        <h3 style="margin: 0 0 0.5rem 0; color: #6c757d;">Nenhum artigo encontrado</h3>
-                        <p style="margin: 0 0 2rem 0;">
-                            <%= currentCategory ? 
-                                `Não há artigos na categoria "${currentCategory}" ainda.` : 
-                                'Ainda não há artigos publicados.' %>
-                        </p>
-                        <% if (user && user.role === 'trainer') { %>
-                            <a href="/articles/create" class="btn btn-primary">Criar Primeiro Artigo</a>
-                        <% } %>
-                    </div>
-                <% } %>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>FitConnect</h3>
-                    <p>Transformando vidas através do treinamento personalizado.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Links Rápidos</h4>
-                    <ul>
-                        <li><a href="/">Início</a></li>
-                        <li><a href="/#about">Como Funciona</a></li>
-                        <li><a href="/#features">Benefícios</a></li>
-                        <li><a href="/articles">Artigos</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contato</h4>
-                    <ul>
-                        <li>contato@fitconnect.com</li>
-                        <li>(11) 99999-9999</li>
-                        <li>São Paulo, SP</li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Siga-nos</h4>
-                    <div class="social-links">
-                        <a href="#">📘</a>
-                        <a href="#">📷</a>
-                        <a href="#">🐦</a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 FitConnect. Todos os direitos reservados.</p>
+        <!-- Filtros por Categoria -->
+        <div class="articles-filters">
+            <h3>Categorias</h3>
+            <div class="categories-list">
+                <a href="/articles" class="category-tag <%= !currentCategory ? 'active' : '' %>">Todos</a>
+                <a href="/articles/category/treinamento" class="category-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>">Treinamento</a>
+                <a href="/articles/category/nutricao" class="category-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>">Nutrição</a>
+                <a href="/articles/category/saude" class="category-tag <%= currentCategory === 'saude' ? 'active' : '' %>">Saúde</a>
+                <a href="/articles/category/motivacao" class="category-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>">Motivação</a>
             </div>
         </div>
-    </footer>
 
-    <script src="/js/main.js"></script>
-</body>
-</html>
+        <!-- Feed de Artigos -->
+        <% if (articles && articles.length > 0) { %>
+            <div class="articles-feed">
+                <% articles.forEach(article => { %>
+                    <div class="article-card">
+                        <div class="article-image">
+                            <div class="article-category <%= article.category %>">
+                                <%= article.category ? 
+                                    (article.category === 'treinamento' ? '🏋️' :
+                                     article.category === 'nutricao' ? '🥗' :
+                                     article.category === 'saude' ? '❤️' :
+                                     article.category === 'motivacao' ? '💪' : '📝') 
+                                    : '📝' %>
+                                <%= article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : 'Geral' %>
+                            </div>
+                        </div>
+                        <div class="article-content">
+                            <h2 class="article-title"><%= article.title %></h2>
+                            <p class="article-excerpt">
+                                <%= article.content.length > 150 ? 
+                                    article.content.substring(0, 150) + '...' : 
+                                    article.content %>
+                            </p>
+                            <div class="article-meta">
+                                <div class="article-author">
+                                    <div class="author-avatar"><%= article.author_name ? article.author_name.substring(0, 2).toUpperCase() : 'AU' %></div>
+                                    <span>Por <%= article.author_name %></span>
+                                </div>
+                                <span><%= new Date(article.created_at).toLocaleDateString('pt-BR') %></span>
+                            </div>
+                            <div class="article-actions">
+                                <div class="action-btn">
+                                    <span>❤️</span>
+                                    <span>24</span>
+                                </div>
+                                <div class="action-btn">
+                                    <span>💬</span>
+                                    <span>8</span>
+                                </div>
+                                <div class="action-btn">
+                                    <span>↗️</span>
+                                </div>
+                            </div>
+                            <a href="/article/<%= article.id %>" class="read-more">Ler mais</a>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h3>Nenhum artigo encontrado</h3>
+                <p>
+                    <%= currentCategory ? 
+                        `Não há artigos na categoria "${currentCategory}" ainda.` : 
+                        'Ainda não há artigos publicados.' %>
+                </p>
+                <% if (user && user.role === 'trainer') { %>
+                    <a href="/articles/create" class="btn btn-primary">Criar Primeiro Artigo</a>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Modal para exibir artigo rápido (apenas para demonstração) -->
+<div id="articleModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle" class="modal-title"></h2>
+            <span class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="modalImage" class="modal-image"></div>
+            <div id="modalText" class="modal-text"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .articles-page {
+        padding-top: 120px;
+        min-height: 100vh;
+        background-color: var(--gray-100);
+    }
+
+    .articles-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem 0;
+    }
+
+    .articles-header h1 {
+        margin-bottom: 1rem;
+        color: var(--gray-800);
+        font-size: 2.5rem;
+    }
+
+    .articles-header p {
+        color: var(--gray-600);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    .articles-filters {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+    }
+
+    .articles-filters h3 {
+        margin-bottom: 1rem;
+        color: var(--gray-800);
+    }
+
+    .categories-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .category-tag {
+        padding: 0.5rem 1rem;
+        background: var(--gray-100);
+        color: var(--gray-600);
+        text-decoration: none;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+
+    .category-tag:hover,
+    .category-tag.active {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .articles-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .article-card {
+        background: white;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+    }
+
+    .article-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .article-image {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--purple) 100%);
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        padding: 1rem;
+        position: relative;
+    }
+
+    .article-category {
+        background: rgba(255,255,255,0.9);
+        color: var(--primary-blue);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .article-content {
+        padding: 1.5rem;
+    }
+
+    .article-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--gray-800);
+    }
+
+    .article-excerpt {
+        color: var(--gray-600);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .article-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: var(--gray-500);
+    }
+
+    .article-author {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .author-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .article-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        color: var(--gray-500);
+        transition: var(--transition);
+    }
+
+    .action-btn:hover {
+        color: var(--primary-blue);
+    }
+
+    .read-more {
+        display: inline-block;
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+        margin-top: 1rem;
+    }
+
+    .read-more:hover {
+        background-color: var(--secondary-blue);
+    }
+
+    /* Modal para exibir artigo completo */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        z-index: 1000;
+        overflow-y: auto;
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 50px auto;
+        max-width: 800px;
+        border-radius: var(--radius);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        animation: modalFade 0.3s;
+    }
+
+    @keyframes modalFade {
+        from {opacity: 0; transform: translateY(-20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-200);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        color: var(--gray-800);
+    }
+
+    .close-btn {
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--gray-500);
+        transition: var(--transition);
+    }
+
+    .close-btn:hover {
+        color: var(--gray-700);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-image {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--purple) 100%);
+        background-size: cover;
+        background-position: center;
+        border-radius: var(--radius);
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-text {
+        line-height: 1.8;
+        color: var(--gray-700);
+    }
+
+    .modal-text h3 {
+        margin: 1.5rem 0 0.5rem 0;
+        color: var(--gray-800);
+    }
+
+    .modal-text p {
+        margin-bottom: 1rem;
+    }
+
+    .modal-text ul {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .modal-text li {
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--gray-600);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 0.5rem 0;
+        color: var(--gray-600);
+    }
+
+    .empty-state p {
+        margin: 0 0 2rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .articles-header h1 {
+            font-size: 2rem;
+        }
+        
+        .categories-list {
+            justify-content: center;
+        }
+        
+        .modal-content {
+            margin: 20px;
+        }
+        
+        .article-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Dados dos artigos completos (apenas para demonstração)
+    const articlesData = {
+        1: {
+            title: "10 Dicas para Manter a Motivação nos Treinos",
+            image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            content: `
+                <p>Manter a motivação para treinar regularmente pode ser um desafio, especialmente quando a rotina fica pesada ou os resultados não aparecem tão rápido quanto gostaríamos. Aqui estão 10 dicas para ajudar você a manter o foco e a consistência nos treinos:</p>
+                
+                <h3>1. Estabeleça Metas Realistas</h3>
+                <p>Defina objetivos alcançáveis e mensuráveis. Em vez de "perder peso", tente "perder 2kg em um mês". Metas específicas são mais fáceis de acompanhar.</p>
+                
+                <h3>2. Varie os Treinos</h3>
+                <p>A monotonia é uma das principais causas de desistência. Alterne entre diferentes tipos de exercícios para manter o interesse.</p>
+                
+                <h3>3. Encontre um Parceiro de Treino</h3>
+                <p>Treinar com um amigo aumenta o comprometimento e torna a experiência mais divertida.</p>
+                
+                <h3>4. Acompanhe Seu Progresso</h3>
+                <p>Registre seus treinos e medidas. Ver a evolução ao longo do tempo é extremamente motivador.</p>
+                
+                <h3>5. Recompense-se</h3>
+                <p>Estabeleça recompensas por alcançar metas. Pode ser uma massagem, uma roupa nova ou um dia de descanso merecido.</p>
+                
+                <h3>6. Ouça Música</h3>
+                <p>Crie playlists energéticas para seus treinos. A música certa pode aumentar significativamente seu desempenho.</p>
+                
+                <h3>7. Visualize o Sucesso</h3>
+                <p>Passe alguns minutos imaginando-se alcançando seus objetivos. A visualização positiva fortalece a determinação.</p>
+                
+                <h3>8. Não Seja Muito Rigoroso</h3>
+                <p>Permita-se flexibilidade. Se perder um treino, não desista - retome no dia seguinte.</p>
+                
+                <h3>9. Invista em Roupas Confortáveis</h3>
+                <p>Roupas adequadas tornam o treino mais agradável e podem aumentar sua autoconfiança.</p>
+                
+                <h3>10. Lembre-se dos Benefícios</h3>
+                <p>Além da estética, o exercício melhora o humor, a qualidade do sono e a saúde geral. Mantenha esses benefícios em mente.</p>
+                
+                <p>Lembre-se: consistência é mais importante que intensidade. Melhor treinar regularmente com moderação do que exagerar e depois desistir.</p>
+            `
+        }
+    };
+
+    // Abrir modal com artigo completo (apenas para demonstração)
+    document.addEventListener('DOMContentLoaded', function() {
+        const readMoreButtons = document.querySelectorAll('.read-more');
+        
+        readMoreButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Se não for um link para artigo individual, abrir modal de demonstração
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    const articleId = 1; // ID fixo para demonstração
+                    const article = articlesData[articleId];
+                    
+                    if (article) {
+                        document.getElementById('modalTitle').textContent = article.title;
+                        document.getElementById('modalImage').style.backgroundImage = `url('${article.image}')`;
+                        document.getElementById('modalText').innerHTML = article.content;
+                        document.getElementById('articleModal').style.display = 'block';
+                    }
+                }
+            });
+        });
+        
+        // Fechar modal
+        document.querySelector('.close-btn').addEventListener('click', function() {
+            document.getElementById('articleModal').style.display = 'none';
+        });
+        
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('articleModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+<%- include('../partials/footer') %>
