@@ -1,6 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const { seedDatabase } = require('./seed'); // Adicione esta linha
 
 const dbPath = path.join(__dirname, 'personal_trainer.db');
 const db = new sqlite3.Database(dbPath);
@@ -84,10 +83,8 @@ const init = () => {
 
     console.log('✅ Banco de dados inicializado com sucesso!');
     
-    // Popular com dados de teste
-    setTimeout(() => {
-        seedDatabase();
-    }, 1000);
+    // Popular com dados de teste (executar seed separadamente)
+    console.log('💡 Execute "node database/seed.js" para popular com dados de teste');
 };
 
 module.exports = { db, init };
