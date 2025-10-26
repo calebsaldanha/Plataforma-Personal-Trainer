@@ -3,8 +3,8 @@
     bodyClass: ''
 }) %>
 
-<div class="articles-page">
-    <div class="container">
+<div class="container" style="padding-top: 120px;">
+    <div class="articles-page">
         <!-- Cabeçalho -->
         <div class="articles-header">
             <h1>Artigos e Dicas</h1>
@@ -22,10 +22,10 @@
             <h3>Categorias</h3>
             <div class="categories-list">
                 <a href="/articles" class="category-tag <%= !currentCategory ? 'active' : '' %>">Todos</a>
-                <a href="/articles/category/treinamento" class="category-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>">Treinamento</a>
-                <a href="/articles/category/nutricao" class="category-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>">Nutrição</a>
-                <a href="/articles/category/saude" class="category-tag <%= currentCategory === 'saude' ? 'active' : '' %>">Saúde</a>
-                <a href="/articles/category/motivacao" class="category-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>">Motivação</a>
+                <a href="/articles/category/treinamento" class="category-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>">🏋️ Treinamento</a>
+                <a href="/articles/category/nutricao" class="category-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>">🥗 Nutrição</a>
+                <a href="/articles/category/saude" class="category-tag <%= currentCategory === 'saude' ? 'active' : '' %>">❤️ Saúde</a>
+                <a href="/articles/category/motivacao" class="category-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>">💪 Motivação</a>
             </div>
         </div>
 
@@ -33,7 +33,7 @@
         <% if (articles && articles.length > 0) { %>
             <div class="articles-feed">
                 <% articles.forEach(article => { %>
-                    <div class="article-card">
+                    <article class="article-card">
                         <div class="article-image">
                             <div class="article-category <%= article.category %>">
                                 <%= article.category ? 
@@ -42,11 +42,15 @@
                                      article.category === 'saude' ? '❤️' :
                                      article.category === 'motivacao' ? '💪' : '📝') 
                                     : '📝' %>
-                                <%= article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : 'Geral' %>
+                                <span class="category-text">
+                                    <%= article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : 'Geral' %>
+                                </span>
                             </div>
                         </div>
                         <div class="article-content">
-                            <h2 class="article-title"><%= article.title %></h2>
+                            <h3 class="article-title">
+                                <a href="/article/<%= article.id %>" class="article-title-link"><%= article.title %></a>
+                            </h3>
                             <p class="article-excerpt">
                                 <%= article.content.length > 150 ? 
                                     article.content.substring(0, 150) + '...' : 
@@ -54,27 +58,33 @@
                             </p>
                             <div class="article-meta">
                                 <div class="article-author">
-                                    <div class="author-avatar"><%= article.author_name ? article.author_name.substring(0, 2).toUpperCase() : 'AU' %></div>
-                                    <span>Por <%= article.author_name %></span>
+                                    <div class="author-avatar">
+                                        <%= article.author_name ? article.author_name.substring(0, 2).toUpperCase() : 'AU' %>
+                                    </div>
+                                    <span class="author-name">Por <%= article.author_name || 'Autor' %></span>
                                 </div>
-                                <span><%= new Date(article.created_at).toLocaleDateString('pt-BR') %></span>
+                                <span class="article-date">
+                                    <%= new Date(article.created_at).toLocaleDateString('pt-BR') %>
+                                </span>
                             </div>
                             <div class="article-actions">
-                                <div class="action-btn">
-                                    <span>❤️</span>
-                                    <span>24</span>
-                                </div>
-                                <div class="action-btn">
-                                    <span>💬</span>
-                                    <span>8</span>
-                                </div>
-                                <div class="action-btn">
-                                    <span>↗️</span>
+                                <a href="/article/<%= article.id %>" class="btn btn-primary btn-sm">Ler Artigo</a>
+                                <div class="action-buttons">
+                                    <button class="action-btn" title="Curtir">
+                                        <span>❤️</span>
+                                        <span>24</span>
+                                    </button>
+                                    <button class="action-btn" title="Comentar">
+                                        <span>💬</span>
+                                        <span>8</span>
+                                    </button>
+                                    <button class="action-btn" title="Compartilhar">
+                                        <span>↗️</span>
+                                    </button>
                                 </div>
                             </div>
-                            <a href="/article/<%= article.id %>" class="read-more">Ler mais</a>
                         </div>
-                    </div>
+                    </article>
                 <% }); %>
             </div>
         <% } else { %>
@@ -88,62 +98,49 @@
                 </p>
                 <% if (user && user.role === 'trainer') { %>
                     <a href="/articles/create" class="btn btn-primary">Criar Primeiro Artigo</a>
+                <% } else { %>
+                    <a href="/" class="btn btn-outline">Voltar para Home</a>
                 <% } %>
             </div>
         <% } %>
     </div>
 </div>
 
-<!-- Modal para exibir artigo rápido (apenas para demonstração) -->
-<div id="articleModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalTitle" class="modal-title"></h2>
-            <span class="close-btn">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div id="modalImage" class="modal-image"></div>
-            <div id="modalText" class="modal-text"></div>
-        </div>
-    </div>
-</div>
-
 <style>
     .articles-page {
-        padding-top: 120px;
-        min-height: 100vh;
-        background-color: var(--gray-100);
+        min-height: 80vh;
+        background: #f8f9fa;
+        padding: 2rem 0;
     }
 
     .articles-header {
         text-align: center;
         margin-bottom: 3rem;
-        padding: 2rem 0;
     }
 
     .articles-header h1 {
+        color: #343a40;
         margin-bottom: 1rem;
-        color: var(--gray-800);
         font-size: 2.5rem;
     }
 
     .articles-header p {
-        color: var(--gray-600);
+        color: #6c757d;
         font-size: 1.1rem;
         margin-bottom: 2rem;
     }
 
     .articles-filters {
-        margin-bottom: 2rem;
-        padding: 1.5rem;
         background: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
     }
 
     .articles-filters h3 {
         margin-bottom: 1rem;
-        color: var(--gray-800);
+        color: #343a40;
     }
 
     .categories-list {
@@ -154,17 +151,20 @@
 
     .category-tag {
         padding: 0.5rem 1rem;
-        background: var(--gray-100);
-        color: var(--gray-600);
+        background: #f8f9fa;
+        color: #6c757d;
         text-decoration: none;
         border-radius: 20px;
         font-size: 0.9rem;
-        transition: var(--transition);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .category-tag:hover,
     .category-tag.active {
-        background: var(--primary-blue);
+        background: #4361ee;
         color: white;
     }
 
@@ -172,28 +172,24 @@
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
-        margin-bottom: 3rem;
     }
 
     .article-card {
         background: white;
-        border-radius: var(--radius);
+        border-radius: 8px;
         overflow: hidden;
-        box-shadow: var(--shadow);
-        transition: var(--transition);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
     }
 
     .article-card:hover {
         transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
     }
 
     .article-image {
-        width: 100%;
         height: 200px;
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--purple) 100%);
-        background-size: cover;
-        background-position: center;
+        background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
         display: flex;
         align-items: flex-end;
         justify-content: flex-end;
@@ -203,7 +199,7 @@
 
     .article-category {
         background: rgba(255,255,255,0.9);
-        color: var(--primary-blue);
+        color: #4361ee;
         padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.8rem;
@@ -213,20 +209,32 @@
         gap: 0.5rem;
     }
 
+    .category-text {
+        font-size: 0.8rem;
+    }
+
     .article-content {
         padding: 1.5rem;
     }
 
     .article-title {
-        font-size: 1.5rem;
         margin-bottom: 1rem;
-        color: var(--gray-800);
+        color: #343a40;
+    }
+
+    .article-title-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .article-title-link:hover {
+        color: #4361ee;
     }
 
     .article-excerpt {
-        color: var(--gray-600);
-        margin-bottom: 1.5rem;
+        color: #6c757d;
         line-height: 1.6;
+        margin-bottom: 1.5rem;
     }
 
     .article-meta {
@@ -235,7 +243,7 @@
         align-items: center;
         margin-bottom: 1rem;
         font-size: 0.9rem;
-        color: var(--gray-500);
+        color: #6c757d;
     }
 
     .article-author {
@@ -248,142 +256,52 @@
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background-color: var(--primary-blue);
+        background: #4361ee;
+        color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
         font-size: 0.8rem;
         font-weight: 600;
     }
 
     .article-actions {
         display: flex;
-        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
         margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
     }
 
     .action-btn {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.25rem;
+        background: none;
+        border: none;
+        color: #6c757d;
         cursor: pointer;
-        color: var(--gray-500);
-        transition: var(--transition);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        font-size: 0.8rem;
     }
 
     .action-btn:hover {
-        color: var(--primary-blue);
-    }
-
-    .read-more {
-        display: inline-block;
-        background-color: var(--primary-blue);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius);
-        text-decoration: none;
-        font-weight: 500;
-        transition: var(--transition);
-        margin-top: 1rem;
-    }
-
-    .read-more:hover {
-        background-color: var(--secondary-blue);
-    }
-
-    /* Modal para exibir artigo completo */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.7);
-        z-index: 1000;
-        overflow-y: auto;
-    }
-
-    .modal-content {
-        background-color: white;
-        margin: 50px auto;
-        max-width: 800px;
-        border-radius: var(--radius);
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        animation: modalFade 0.3s;
-    }
-
-    @keyframes modalFade {
-        from {opacity: 0; transform: translateY(-20px);}
-        to {opacity: 1; transform: translateY(0);}
-    }
-
-    .modal-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .modal-title {
-        font-size: 1.5rem;
-        color: var(--gray-800);
-    }
-
-    .close-btn {
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: var(--gray-500);
-        transition: var(--transition);
-    }
-
-    .close-btn:hover {
-        color: var(--gray-700);
-    }
-
-    .modal-body {
-        padding: 1.5rem;
-    }
-
-    .modal-image {
-        width: 100%;
-        height: 300px;
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--purple) 100%);
-        background-size: cover;
-        background-position: center;
-        border-radius: var(--radius);
-        margin-bottom: 1.5rem;
-    }
-
-    .modal-text {
-        line-height: 1.8;
-        color: var(--gray-700);
-    }
-
-    .modal-text h3 {
-        margin: 1.5rem 0 0.5rem 0;
-        color: var(--gray-800);
-    }
-
-    .modal-text p {
-        margin-bottom: 1rem;
-    }
-
-    .modal-text ul {
-        margin-bottom: 1rem;
-        padding-left: 1.5rem;
-    }
-
-    .modal-text li {
-        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+        color: #4361ee;
     }
 
     .empty-state {
         text-align: center;
         padding: 3rem 2rem;
-        color: var(--gray-600);
+        color: #6c757d;
     }
 
     .empty-icon {
@@ -393,12 +311,8 @@
     }
 
     .empty-state h3 {
-        margin: 0 0 0.5rem 0;
-        color: var(--gray-600);
-    }
-
-    .empty-state p {
-        margin: 0 0 2rem 0;
+        margin-bottom: 0.5rem;
+        color: #6c757d;
     }
 
     @media (max-width: 768px) {
@@ -406,101 +320,23 @@
             font-size: 2rem;
         }
         
-        .categories-list {
-            justify-content: center;
-        }
-        
-        .modal-content {
-            margin: 20px;
-        }
-        
         .article-meta {
             flex-direction: column;
             align-items: flex-start;
             gap: 0.5rem;
         }
+        
+        .article-actions {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .action-buttons {
+            width: 100%;
+            justify-content: space-between;
+        }
     }
 </style>
-
-<script>
-    // Dados dos artigos completos (apenas para demonstração)
-    const articlesData = {
-        1: {
-            title: "10 Dicas para Manter a Motivação nos Treinos",
-            image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            content: `
-                <p>Manter a motivação para treinar regularmente pode ser um desafio, especialmente quando a rotina fica pesada ou os resultados não aparecem tão rápido quanto gostaríamos. Aqui estão 10 dicas para ajudar você a manter o foco e a consistência nos treinos:</p>
-                
-                <h3>1. Estabeleça Metas Realistas</h3>
-                <p>Defina objetivos alcançáveis e mensuráveis. Em vez de "perder peso", tente "perder 2kg em um mês". Metas específicas são mais fáceis de acompanhar.</p>
-                
-                <h3>2. Varie os Treinos</h3>
-                <p>A monotonia é uma das principais causas de desistência. Alterne entre diferentes tipos de exercícios para manter o interesse.</p>
-                
-                <h3>3. Encontre um Parceiro de Treino</h3>
-                <p>Treinar com um amigo aumenta o comprometimento e torna a experiência mais divertida.</p>
-                
-                <h3>4. Acompanhe Seu Progresso</h3>
-                <p>Registre seus treinos e medidas. Ver a evolução ao longo do tempo é extremamente motivador.</p>
-                
-                <h3>5. Recompense-se</h3>
-                <p>Estabeleça recompensas por alcançar metas. Pode ser uma massagem, uma roupa nova ou um dia de descanso merecido.</p>
-                
-                <h3>6. Ouça Música</h3>
-                <p>Crie playlists energéticas para seus treinos. A música certa pode aumentar significativamente seu desempenho.</p>
-                
-                <h3>7. Visualize o Sucesso</h3>
-                <p>Passe alguns minutos imaginando-se alcançando seus objetivos. A visualização positiva fortalece a determinação.</p>
-                
-                <h3>8. Não Seja Muito Rigoroso</h3>
-                <p>Permita-se flexibilidade. Se perder um treino, não desista - retome no dia seguinte.</p>
-                
-                <h3>9. Invista em Roupas Confortáveis</h3>
-                <p>Roupas adequadas tornam o treino mais agradável e podem aumentar sua autoconfiança.</p>
-                
-                <h3>10. Lembre-se dos Benefícios</h3>
-                <p>Além da estética, o exercício melhora o humor, a qualidade do sono e a saúde geral. Mantenha esses benefícios em mente.</p>
-                
-                <p>Lembre-se: consistência é mais importante que intensidade. Melhor treinar regularmente com moderação do que exagerar e depois desistir.</p>
-            `
-        }
-    };
-
-    // Abrir modal com artigo completo (apenas para demonstração)
-    document.addEventListener('DOMContentLoaded', function() {
-        const readMoreButtons = document.querySelectorAll('.read-more');
-        
-        readMoreButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                // Se não for um link para artigo individual, abrir modal de demonstração
-                if (this.getAttribute('href') === '#') {
-                    e.preventDefault();
-                    const articleId = 1; // ID fixo para demonstração
-                    const article = articlesData[articleId];
-                    
-                    if (article) {
-                        document.getElementById('modalTitle').textContent = article.title;
-                        document.getElementById('modalImage').style.backgroundImage = `url('${article.image}')`;
-                        document.getElementById('modalText').innerHTML = article.content;
-                        document.getElementById('articleModal').style.display = 'block';
-                    }
-                }
-            });
-        });
-        
-        // Fechar modal
-        document.querySelector('.close-btn').addEventListener('click', function() {
-            document.getElementById('articleModal').style.display = 'none';
-        });
-        
-        // Fechar modal ao clicar fora
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('articleModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    });
-</script>
 
 <%- include('../partials/footer') %>
