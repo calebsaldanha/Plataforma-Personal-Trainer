@@ -83,7 +83,7 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 // Aplicar animação aos elementos
-document.addEventListener('DOMContentLoaded', () => {
+/*document.addEventListener('DOMContentLoaded', () => {
     const animatedElements = document.querySelectorAll('.step, .feature-card, .article-card');
     
     animatedElements.forEach(el => {
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(el);
     });
-});
+});*/
 
 // Função para mostrar notificações
 function showNotification(message, type = 'info') {
