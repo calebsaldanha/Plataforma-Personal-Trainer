@@ -2,76 +2,26 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../database/db');
 
-console.log('📄 Rota de artigos inicializada!');
-
 // Listar artigos
 router.get('/articles', (req, res) => {
-    console.log('📖 Acessando página de artigos...');
-    
-    // Buscar artigos do banco
     const query = `
         SELECT a.*, u.name as author_name 
         FROM articles a 
-        LEFT JOIN users u ON a.author_id = u.id 
+        JOIN users u ON a.author_id = u.id 
         ORDER BY a.created_at DESC
     `;
 
     db.all(query, [], (err, articles) => {
         if (err) {
-            console.error('❌ Erro ao buscar artigos do banco:', err);
-            // Usar artigos de exemplo em caso de erro
-            articles = [];
+            console.error('Erro ao buscar artigos:', err);
+            return res.status(500).render('error', { message: 'Erro ao carregar artigos' });
         }
 
-        let articlesData = articles;
-        
-        // Se não há artigos no banco, usar exemplos
-        if (!articles || articles.length === 0) {
-            console.log('📝 Usando artigos de exemplo...');
-            articlesData = [
-                {
-                    id: 1,
-                    title: "10 Dicas para Manter a Motivação nos Treinos",
-                    content: "Descobre estratégias comprovadas para manter a consistência nos seus treinos e alcançar seus objetivos de fitness de forma eficiente e sustentável. Aprenda técnicas que realmente funcionam para manter o foco e a disciplina.",
-                    author_name: "João Silva",
-                    category: "motivacao",
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    title: "Alimentação para Melhor Performance",
-                    content: "Como a nutrição adequada pode potencializar seus resultados nos treinos e melhorar sua recuperação muscular para alcançar seus objetivos mais rapidamente. Descubra os alimentos essenciais para cada fase do treino.",
-                    author_name: "Maria Santos", 
-                    category: "nutricao",
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 3,
-                    title: "Como Prevenir Lesões Durante o Treino",
-                    content: "Aprenda técnicas e exercícios que podem ajudar a prevenir lesões comuns durante a prática de atividades físicas e mantenha-se saudável em sua jornada fitness. Conheça os erros mais comuns e como evitá-los.",
-                    author_name: "Carlos Oliveira",
-                    category: "treinamento",
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 4,
-                    title: "Importância do Descanso para o Crescimento Muscular",
-                    content: "Entenda por que o descanso é tão importante quanto o treino para o desenvolvimento muscular e como otimizar sua recuperação para obter melhores resultados.",
-                    author_name: "Ana Costa",
-                    category: "saude", 
-                    created_at: new Date().toISOString()
-                }
-            ];
-        }
-
-        console.log(`✅ Renderizando ${articlesData.length} artigos`);
-        
         res.render('pages/articles', {
             user: req.session ? req.session.user : null,
             isAuthenticated: !!(req.session && req.session.user),
-            articles: articlesData,
-            title: 'Artigos e Dicas - FitConnect',
-            currentCategory: null
+            articles: articles || [],
+            title: 'Artigos e Dicas - FitConnect'
         });
     });
 });
@@ -79,32 +29,22 @@ router.get('/articles', (req, res) => {
 // Ver artigo individual
 router.get('/article/:id', (req, res) => {
     const articleId = req.params.id;
-    console.log(`📄 Acessando artigo ID: ${articleId}`);
-    
-    // Buscar artigo específico do banco
+
     const query = `
         SELECT a.*, u.name as author_name 
         FROM articles a 
-        LEFT JOIN users u ON a.author_id = u.id 
+        JOIN users u ON a.author_id = u.id 
         WHERE a.id = ?
     `;
 
     db.get(query, [articleId], (err, article) => {
         if (err) {
             console.error('Erro ao buscar artigo:', err);
-            return res.status(500).render('pages/error', { 
-                message: 'Erro ao carregar artigo',
-                user: req.session ? req.session.user : null,
-                isAuthenticated: !!(req.session && req.session.user)
-            });
+            return res.status(500).render('error', { message: 'Erro ao carregar artigo' });
         }
 
         if (!article) {
-            return res.status(404).render('pages/error', { 
-                message: 'Artigo não encontrado',
-                user: req.session ? req.session.user : null,
-                isAuthenticated: !!(req.session && req.session.user)
-            });
+            return res.status(404).render('error', { message: 'Artigo não encontrado' });
         }
 
         res.render('pages/article-details', {
@@ -116,15 +56,58 @@ router.get('/article/:id', (req, res) => {
     });
 });
 
+// Criar artigo (admin)
+router.get('/articles/create', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'trainer') {
+        return res.redirect('/auth/login');
+    }
+
+    res.render('pages/create-article', {
+        user: req.session.user,
+        title: 'Criar Artigo - FitConnect'
+    });
+});
+
+// Salvar artigo
+router.post('/articles/create', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'trainer') {
+        return res.status(401).json({ success: false, message: 'Não autorizado' });
+    }
+
+    const { title, content, category } = req.body;
+    const author_id = req.session.user.id;
+
+    if (!title || !content) {
+        return res.status(400).json({ success: false, message: 'Título e conteúdo são obrigatórios' });
+    }
+
+    const query = `
+        INSERT INTO articles (title, content, author_id, category) 
+        VALUES (?, ?, ?, ?)
+    `;
+
+    db.run(query, [title, content, author_id, category], function(err) {
+        if (err) {
+            console.error('Erro ao criar artigo:', err);
+            return res.status(500).json({ success: false, message: 'Erro ao criar artigo' });
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Artigo criado com sucesso',
+            articleId: this.lastID
+        });
+    });
+});
+
 // Artigos por categoria
 router.get('/articles/category/:category', (req, res) => {
     const category = req.params.category;
-    console.log(`📂 Filtrando artigos por categoria: ${category}`);
-    
+
     const query = `
         SELECT a.*, u.name as author_name 
         FROM articles a 
-        LEFT JOIN users u ON a.author_id = u.id 
+        JOIN users u ON a.author_id = u.id 
         WHERE a.category = ? 
         ORDER BY a.created_at DESC
     `;
@@ -132,7 +115,7 @@ router.get('/articles/category/:category', (req, res) => {
     db.all(query, [category], (err, articles) => {
         if (err) {
             console.error('Erro ao buscar artigos por categoria:', err);
-            articles = [];
+            return res.status(500).render('error', { message: 'Erro ao carregar artigos' });
         }
 
         res.render('pages/articles', {
