@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= article.title %> - FitConnect</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/fixes.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="home-page">
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2>FitConnect</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#about" class="nav-link">Como Funciona</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#features" class="nav-link">Benefícios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#trainer" class="nav-link">Personal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/articles" class="nav-link active">Artigos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#contact" class="nav-link">Contato</a>
+                    </li>
+                    <% if (isAuthenticated) { %>
+                        <li class="nav-item">
+                            <span class="nav-link">Olá, <%= user.name %>!</span>
+                        </li>
+                        <li class="nav-item">
+                            <form action="/auth/logout" method="POST" class="logout-form">
+                                <button type="submit" class="nav-link login-btn">Sair</button>
+                            </form>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a href="/auth/login" class="nav-link login-btn">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/auth/register" class="nav-link register-btn">Cadastre-se</a>
+                        </li>
+                    <% } %>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="container" style="padding-top: 120px;">
+            <div class="article-detail-page">
+                <!-- Cabeçalho do Artigo -->
+                <div class="article-header" style="margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid #e9ecef;">
+                    <nav class="article-breadcrumb" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem; color: #6c757d;">
+                        <a href="/articles" style="color: #4361ee; text-decoration: none;">Artigos</a>
+                        <% if (article.category) { %>
+                            <span>/</span>
+                            <a href="/articles/category/<%= article.category %>" style="color: #4361ee; text-decoration: none;">
+                                <%= article.category === 'treinamento' ? 'Treinamento' :
+                                   article.category === 'nutricao' ? 'Nutrição' :
+                                   article.category === 'saude' ? 'Saúde' :
+                                   article.category === 'motivacao' ? 'Motivação' : 'Geral' %>
+                            </a>
+                        <% } %>
+                        <span>/</span>
+                        <span>Artigo</span>
+                    </nav>
+                    
+                    <div class="article-meta-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                        <span class="article-category-badge" 
+                              style="padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+                                     background: <%= article.category === 'treinamento' ? '#e3f2fd' : 
+                                                  article.category === 'nutricao' ? '#e8f5e8' : 
+                                                  article.category === 'saude' ? '#ffebee' : 
+                                                  article.category === 'motivacao' ? '#fff3e0' : '#f8f9fa' %>;
+                                     color: <%= article.category === 'treinamento' ? '#1565c0' : 
+                                             article.category === 'nutricao' ? '#2e7d32' : 
+                                             article.category === 'saude' ? '#c62828' : 
+                                             article.category === 'motivacao' ? '#ef6c00' : '#6c757d' %>;">
+                            <%= article.category ? 
+                                (article.category === 'treinamento' ? '🏋️ Treinamento' :
+                                 article.category === 'nutricao' ? '🥗 Nutrição' :
+                                 article.category === 'saude' ? '❤️ Saúde' :
+                                 article.category === 'motivacao' ? '💪 Motivação' : '📝 Geral') 
+                                : '📝 Geral' %>
+                        </span>
+                        <span class="article-date" style="color: #6c757d; font-size: 0.9rem;">
+                            Publicado em <%= new Date(article.created_at).toLocaleDateString('pt-BR') %>
+                        </span>
+                    </div>
+
+                    <h1 class="article-title" style="font-size: 2.5rem; font-weight: 700; color: #343a40; line-height: 1.2; margin-bottom: 2rem;">
+                        <%= article.title %>
+                    </h1>
+                    
+                    <div class="article-author" style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="author-avatar" style="width: 50px; height: 50px; border-radius: 50%; background: #4361ee; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
+                            👤
+                        </div>
+                        <div class="author-info" style="display: flex; flex-direction: column;">
+                            <span class="author-name" style="font-weight: 600; color: #343a40;">Por <%= article.author_name %></span>
+                            <span class="author-role" style="font-size: 0.9rem; color: #6c757d;">Personal Trainer</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteúdo do Artigo -->
+                <div class="article-content" style="margin-bottom: 3rem;">
+                    <div class="content-body" style="font-size: 1.1rem; line-height: 1.8; color: #343a40;">
+                        <%= article.content.replace(/\n/g, '<br>') %>
+                    </div>
+                </div>
+
+                <!-- Ações do Artigo -->
+                <div class="article-actions" style="margin-bottom: 3rem; padding: 2rem 0; border-top: 1px solid #e9ecef; border-bottom: 1px solid #e9ecef;">
+                    <div class="action-buttons" style="display: flex; gap: 1rem; justify-content: space-between; align-items: center;">
+                        <a href="/articles" class="btn btn-outline" style="text-decoration: none;">
+                            ← Voltar para Artigos
+                        </a>
+                        <% if (user && user.role === 'trainer') { %>
+                            <a href="/articles/create" class="btn btn-primary" style="text-decoration: none;">
+                                ✏️ Criar Novo Artigo
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FitConnect</h3>
+                    <p>Transformando vidas através do treinamento personalizado.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="/">Início</a></li>
+                        <li><a href="/#about">Como Funciona</a></li>
+                        <li><a href="/#features">Benefícios</a></li>
+                        <li><a href="/articles">Artigos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li>contato@fitconnect.com</li>
+                        <li>(11) 99999-9999</li>
+                        <li>São Paulo, SP</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Siga-nos</h4>
+                    <div class="social-links">
+                        <a href="#">📘</a>
+                        <a href="#">📷</a>
+                        <a href="#">🐦</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FitConnect. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
