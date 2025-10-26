@@ -1,69 +1,12 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Erro - FitConnect</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/fixes.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Header Simplificado -->
-    <header class="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-logo">
-                    <h2><a href="/" style="color: #4361ee; text-decoration: none;">FitConnect</a></h2>
-                </div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="/" class="nav-link">Início</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/articles" class="nav-link">Artigos</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+<%- include('partials/header', { 
+    title: 'Erro - FitConnect',
+    bodyClass: ''
+}) %>
 
-    <main class="main-content">
-        <div class="container" style="padding-top: 120px; text-align: center; min-height: 60vh;">
-            <h1>Oops! Algo deu errado</h1>
-            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
-                <% if (typeof message !== 'undefined') { %>
-                    <%= message %>
-                <% } else { %>
-                    Ocorreu um erro inesperado na aplicação.
-                <% } %>
-            </p>
-            <a href="/" class="btn btn-primary">Voltar para a página inicial</a>
-            <a href="/articles" class="btn btn-outline" style="margin-left: 1rem;">Ver Artigos</a>
-        </div>
-    </main>
+<div class="container" style="padding-top: 120px; text-align: center;">
+    <h1>Oops! Algo deu errado</h1>
+    <p><%= message %></p>
+    <a href="/" class="btn btn-primary">Voltar para a página inicial</a>
+</div>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>FitConnect</h3>
-                    <p>Transformando vidas através do treinamento personalizado.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Links Rápidos</h4>
-                    <ul>
-                        <li><a href="/">Início</a></li>
-                        <li><a href="/articles">Artigos</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 FitConnect. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="/js/main.js"></script>
-</body>
-</html>
+<%- include('partials/footer') %>
