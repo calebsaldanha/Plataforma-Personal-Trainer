@@ -2,10 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../database/db');
 
-// Listar treinos do cliente
-router.get('/workouts', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'client') {
+// Middleware de autenticação
+const requireAuth = (req, res, next) => {
+    if (!req.session.user) {
         return res.redirect('/auth/login');
+    }
+    next();
+};
+
+// Listar treinos do cliente
+router.get('/workouts', requireAuth, (req, res) => {
+    if (req.session.user.role !== 'client') {
+        return res.redirect('/admin/dashboard');
     }
 
     const clientId = req.session.user.id;
@@ -32,11 +40,7 @@ router.get('/workouts', (req, res) => {
 });
 
 // Ver detalhes do treino
-router.get('/workout/:id', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/auth/login');
-    }
-
+router.get('/workout/:id', requireAuth, (req, res) => {
     const workoutId = req.params.id;
     const userId = req.session.user.id;
 
@@ -83,20 +87,28 @@ router.get('/workout/:id', (req, res) => {
                 console.error('Erro ao buscar check-ins:', err);
             }
 
+            // Parse exercises JSON
+            let exercises = [];
+            try {
+                exercises = workout.exercises ? JSON.parse(workout.exercises) : [];
+            } catch (e) {
+                console.error('Erro ao fazer parse dos exercícios:', e);
+            }
+
             res.render('pages/workout-details', {
                 user: req.session.user,
                 workout: workout,
                 checkins: checkins || [],
-                exercises: workout.exercises ? JSON.parse(workout.exercises) : []
+                exercises: exercises
             });
         });
     });
 });
 
 // Criar treino (admin)
-router.get('/workouts/create', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'trainer') {
-        return res.redirect('/auth/login');
+router.get('/workouts/create', requireAuth, (req, res) => {
+    if (req.session.user.role !== 'trainer') {
+        return res.redirect('/client/dashboard');
     }
 
     // Buscar clientes
@@ -116,8 +128,8 @@ router.get('/workouts/create', (req, res) => {
 });
 
 // Salvar treino
-router.post('/workouts/create', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'trainer') {
+router.post('/workouts/create', requireAuth, (req, res) => {
+    if (req.session.user.role !== 'trainer') {
         return res.status(401).json({ success: false, message: 'Não autorizado' });
     }
 
@@ -148,8 +160,8 @@ router.post('/workouts/create', (req, res) => {
 });
 
 // Fazer check-in no treino
-router.post('/workout/:id/checkin', (req, res) => {
-    if (!req.session.user || req.session.user.role !== 'client') {
+router.post('/workout/:id/checkin', requireAuth, (req, res) => {
+    if (req.session.user.role !== 'client') {
         return res.status(401).json({ success: false, message: 'Não autorizado' });
     }
 
@@ -162,7 +174,7 @@ router.post('/workout/:id/checkin', (req, res) => {
         VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.run(query, [workoutId, clientId, completed ? 1 : 0, notes, rating], function(err) {
+    db.run(query, [workoutId, clientId, completed ? 1 : 0, notes, rating || null], function(err) {
         if (err) {
             console.error('Erro ao registrar check-in:', err);
             return res.status(500).json({ success: false, message: 'Erro ao registrar check-in' });
