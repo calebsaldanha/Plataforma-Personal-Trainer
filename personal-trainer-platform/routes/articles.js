@@ -21,7 +21,8 @@ router.get('/articles', (req, res) => {
             user: req.session ? req.session.user : null,
             isAuthenticated: !!(req.session && req.session.user),
             articles: articles || [],
-            title: 'Artigos e Dicas - FitConnect'
+            title: 'Artigos e Dicas - FitConnect',
+            currentCategory: null // ← ADICIONAR ESTA LINHA
         });
     });
 });
@@ -123,7 +124,7 @@ router.get('/articles/category/:category', (req, res) => {
             isAuthenticated: !!(req.session && req.session.user),
             articles: articles || [],
             title: `Artigos de ${category} - FitConnect`,
-            currentCategory: category
+            currentCategory: category // ← JÁ ESTAVA CORRETO AQUI
         });
     });
 });
