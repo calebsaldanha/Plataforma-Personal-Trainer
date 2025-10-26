@@ -6,9 +6,10 @@
     <title><%= title || 'Artigos e Dicas - FitConnect' %></title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/fixes.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="home-page">
     <!-- Header -->
     <header class="header">
         <nav class="navbar">
@@ -30,7 +31,7 @@
                         <a href="/#trainer" class="nav-link">Personal</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/articles" class="nav-link">Artigos</a>
+                        <a href="/articles" class="nav-link active">Artigos</a>
                     </li>
                     <li class="nav-item">
                         <a href="/#contact" class="nav-link">Contato</a>
@@ -63,37 +64,72 @@
     </header>
 
     <main class="main-content">
-        <div class="container" style="padding-top: 120px;">
-            <div class="articles-page">
-                <!-- Cabeçalho -->
-                <div class="articles-header">
-                    <h1>Artigos e Dicas</h1>
-                    <p>Conteúdo exclusivo para melhorar seu desempenho e conhecimento</p>
+        <!-- Hero Section para Artigos -->
+        <section class="hero" style="background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); padding: 100px 0 60px; margin-top: 0;">
+            <div class="container">
+                <div class="hero-content" style="text-align: center;">
+                    <h1 class="hero-title" style="color: white; margin-bottom: 1rem;">Artigos & Dicas</h1>
+                    <p class="hero-subtitle" style="color: white; opacity: 0.9; font-size: 1.2rem;">
+                        Conteúdo exclusivo para melhorar seu desempenho e conhecimento
+                    </p>
                     
                     <% if (user && user.role === 'trainer') { %>
-                        <a href="/articles/create" class="btn btn-primary">Criar Novo Artigo</a>
+                        <div style="margin-top: 2rem;">
+                            <a href="/articles/create" class="btn btn-primary">Criar Novo Artigo</a>
+                        </div>
                     <% } %>
                 </div>
+            </div>
+        </section>
 
+        <!-- Conteúdo Principal -->
+        <section class="articles-section" style="padding: 60px 0;">
+            <div class="container">
                 <!-- Filtros por Categoria -->
-                <div class="articles-filters">
-                    <h3>Categorias</h3>
-                    <div class="categories-list">
-                        <a href="/articles" class="category-tag <%= !currentCategory ? 'active' : '' %>">Todos</a>
-                        <a href="/articles/category/treinamento" class="category-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>">Treinamento</a>
-                        <a href="/articles/category/nutricao" class="category-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>">Nutrição</a>
-                        <a href="/articles/category/saude" class="category-tag <%= currentCategory === 'saude' ? 'active' : '' %>">Saúde</a>
-                        <a href="/articles/category/motivacao" class="category-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>">Motivação</a>
+                <div class="articles-filters" style="margin-bottom: 3rem;">
+                    <h3 style="text-align: center; margin-bottom: 1.5rem; color: #343a40;">Categorias</h3>
+                    <div class="categories-list" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem;">
+                        <a href="/articles" class="category-tag <%= !currentCategory ? 'active' : '' %>" 
+                           style="padding: 0.5rem 1.5rem; background: <%= !currentCategory ? '#4361ee' : '#f8f9fa' %>; 
+                                  color: <%= !currentCategory ? 'white' : '#6c757d' %>; text-decoration: none; 
+                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
+                            Todos
+                        </a>
+                        <a href="/articles/category/treinamento" class="category-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>"
+                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'treinamento' ? '#4361ee' : '#f8f9fa' %>; 
+                                  color: <%= currentCategory === 'treinamento' ? 'white' : '#6c757d' %>; text-decoration: none; 
+                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
+                            🏋️ Treinamento
+                        </a>
+                        <a href="/articles/category/nutricao" class="category-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>"
+                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'nutricao' ? '#4361ee' : '#f8f9fa' %>; 
+                                  color: <%= currentCategory === 'nutricao' ? 'white' : '#6c757d' %>; text-decoration: none; 
+                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
+                            🥗 Nutrição
+                        </a>
+                        <a href="/articles/category/saude" class="category-tag <%= currentCategory === 'saude' ? 'active' : '' %>"
+                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'saude' ? '#4361ee' : '#f8f9fa' %>; 
+                                  color: <%= currentCategory === 'saude' ? 'white' : '#6c757d' %>; text-decoration: none; 
+                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
+                            ❤️ Saúde
+                        </a>
+                        <a href="/articles/category/motivacao" class="category-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>"
+                           style="padding: 0.5rem 1.5rem; background: <%= currentCategory === 'motivacao' ? '#4361ee' : '#f8f9fa' %>; 
+                                  color: <%= currentCategory === 'motivacao' ? 'white' : '#6c757d' %>; text-decoration: none; 
+                                  border-radius: 25px; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid #4361ee;">
+                            💪 Motivação
+                        </a>
                     </div>
                 </div>
 
                 <!-- Grid de Artigos -->
                 <% if (articles && articles.length > 0) { %>
-                    <div class="articles-grid">
+                    <div class="articles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
                         <% articles.forEach(article => { %>
-                            <article class="article-card">
-                                <div class="article-image">
-                                    <div class="article-category <%= article.category %>">
+                            <article class="article-card" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                                <div class="article-image" style="height: 200px; background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%); display: flex; align-items: flex-end; justify-content: flex-end; padding: 1rem; position: relative;">
+                                    <div class="article-category" 
+                                         style="background: rgba(255,255,255,0.9); color: #4361ee; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
                                         <%= article.category ? 
                                             (article.category === 'treinamento' ? '🏋️' :
                                              article.category === 'nutricao' ? '🥗' :
@@ -103,29 +139,36 @@
                                         <%= article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : 'Geral' %>
                                     </div>
                                 </div>
-                                <div class="article-content">
-                                    <h3><%= article.title %></h3>
-                                    <p class="article-excerpt">
-                                        <%= article.content.length > 150 ? 
-                                            article.content.substring(0, 150) + '...' : 
+                                <div class="article-content" style="padding: 1.5rem;">
+                                    <h3 style="margin: 0 0 1rem 0; color: #343a40; line-height: 1.4; font-size: 1.2rem;">
+                                        <%= article.title %>
+                                    </h3>
+                                    <p class="article-excerpt" style="color: #6c757d; line-height: 1.6; margin-bottom: 1rem;">
+                                        <%= article.content.length > 120 ? 
+                                            article.content.substring(0, 120) + '...' : 
                                             article.content %>
                                     </p>
-                                    <div class="article-meta">
-                                        <span class="article-author">Por <%= article.author_name %></span>
+                                    <div class="article-meta" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 0.9rem; color: #6c757d;">
+                                        <span class="article-author" style="font-weight: 600;">
+                                            Por <%= article.author_name %>
+                                        </span>
                                         <span class="article-date">
                                             <%= new Date(article.created_at).toLocaleDateString('pt-BR') %>
                                         </span>
                                     </div>
-                                    <a href="/article/<%= article.id %>" class="article-link">Ler mais →</a>
+                                    <a href="/article/<%= article.id %>" class="article-link" 
+                                       style="color: #4361ee; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                        Ler mais →
+                                    </a>
                                 </div>
                             </article>
                         <% }); %>
                     </div>
                 <% } else { %>
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <h3>Nenhum artigo encontrado</h3>
-                        <p>
+                    <div class="empty-state" style="text-align: center; padding: 3rem 2rem; color: #6c757d;">
+                        <div class="empty-icon" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;">📝</div>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #6c757d;">Nenhum artigo encontrado</h3>
+                        <p style="margin: 0 0 2rem 0;">
                             <%= currentCategory ? 
                                 `Não há artigos na categoria "${currentCategory}" ainda.` : 
                                 'Ainda não há artigos publicados.' %>
@@ -136,7 +179,7 @@
                     </div>
                 <% } %>
             </div>
-        </div>
+        </section>
     </main>
 
     <!-- Footer -->
