@@ -1,1423 +1,184 @@
-<%- include('../partials/header', { 
-    title: title || 'Artigos e Dicas - FitConnect',
-    bodyClass: 'articles-page'
-}) %>
-
-<div class="articles-hero">
-    <div class="container">
-        <div class="hero-content">
-            <h1>Artigos e Conteúdo Exclusivo</h1>
-            <p class="hero-subtitle">Descubra dicas, técnicas e conhecimentos para potencializar seus resultados</p>
-            
-            <div class="hero-actions">
-                <% if (user && user.role === 'trainer') { %>
-                    <a href="/articles/create" class="btn btn-primary btn-with-icon">
-                        <span class="icon">✏️</span>
-                        Criar Novo Artigo
-                    </a>
-                <% } %>
-                <a href="#featured-articles" class="btn btn-outline">
-                    Explorar Conteúdo
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container">
-    <!-- Filtros e Busca -->
-    <section class="articles-filters-section">
-        <div class="filters-header">
-            <h2>Encontre o Conteúdo Ideal</h2>
-            <p>Filtre por categoria ou pesquise por temas específicos</p>
-        </div>
-
-        <div class="filters-container">
-            <!-- Barra de Busca -->
-            <div class="search-box">
-                <div class="search-input-wrapper">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="articleSearch" placeholder="Pesquisar artigos...">
-                    <button class="search-clear" id="clearSearch">✕</button>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Artigos e Dicas - FitConnect' %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/fixes.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2>FitConnect</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#about" class="nav-link">Como Funciona</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#features" class="nav-link">Benefícios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#trainer" class="nav-link">Personal</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/articles" class="nav-link">Artigos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#contact" class="nav-link">Contato</a>
+                    </li>
+                    <% if (isAuthenticated) { %>
+                        <li class="nav-item">
+                            <span class="nav-link">Olá, <%= user.name %>!</span>
+                        </li>
+                        <li class="nav-item">
+                            <form action="/auth/logout" method="POST" class="logout-form">
+                                <button type="submit" class="nav-link login-btn">Sair</button>
+                            </form>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a href="/auth/login" class="nav-link login-btn">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/auth/register" class="nav-link register-btn">Cadastre-se</a>
+                        </li>
+                    <% } %>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
                 </div>
             </div>
+        </nav>
+    </header>
 
-            <!-- Filtros por Categoria -->
-            <div class="categories-filter">
-                <div class="filter-tags">
-                    <button class="filter-tag <%= !currentCategory ? 'active' : '' %>" data-category="">
-                        <span class="tag-icon">📚</span>
-                        Todos os Artigos
-                        <span class="tag-count"><%= articles ? articles.length : 0 %></span>
-                    </button>
-                    <button class="filter-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>" data-category="treinamento">
-                        <span class="tag-icon">💪</span>
-                        Treinamento
-                        <span class="tag-count" id="count-treinamento">0</span>
-                    </button>
-                    <button class="filter-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>" data-category="nutricao">
-                        <span class="tag-icon">🥗</span>
-                        Nutrição
-                        <span class="tag-count" id="count-nutricao">0</span>
-                    </button>
-                    <button class="filter-tag <%= currentCategory === 'saude' ? 'active' : '' %>" data-category="saude">
-                        <span class="tag-icon">❤️</span>
-                        Saúde
-                        <span class="tag-count" id="count-saude">0</span>
-                    </button>
-                    <button class="filter-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>" data-category="motivacao">
-                        <span class="tag-icon">🎯</span>
-                        Motivação
-                        <span class="tag-count" id="count-motivacao">0</span>
-                    </button>
+    <main class="main-content">
+        <div class="container" style="padding-top: 120px;">
+            <div class="articles-page">
+                <!-- Cabeçalho -->
+                <div class="articles-header">
+                    <h1>Artigos e Dicas</h1>
+                    <p>Conteúdo exclusivo para melhorar seu desempenho e conhecimento</p>
+                    
+                    <% if (user && user.role === 'trainer') { %>
+                        <a href="/articles/create" class="btn btn-primary">Criar Novo Artigo</a>
+                    <% } %>
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Artigos em Destaque -->
-    <% if (featuredArticles && featuredArticles.length > 0) { %>
-        <section id="featured-articles" class="featured-articles">
-            <div class="section-header">
-                <h2>📌 Em Destaque</h2>
-                <p>Conteúdos selecionados para você</p>
-            </div>
+                <!-- Filtros por Categoria -->
+                <div class="articles-filters">
+                    <h3>Categorias</h3>
+                    <div class="categories-list">
+                        <a href="/articles" class="category-tag <%= !currentCategory ? 'active' : '' %>">Todos</a>
+                        <a href="/articles/category/treinamento" class="category-tag <%= currentCategory === 'treinamento' ? 'active' : '' %>">Treinamento</a>
+                        <a href="/articles/category/nutricao" class="category-tag <%= currentCategory === 'nutricao' ? 'active' : '' %>">Nutrição</a>
+                        <a href="/articles/category/saude" class="category-tag <%= currentCategory === 'saude' ? 'active' : '' %>">Saúde</a>
+                        <a href="/articles/category/motivacao" class="category-tag <%= currentCategory === 'motivacao' ? 'active' : '' %>">Motivação</a>
+                    </div>
+                </div>
 
-            <div class="featured-grid">
-                <% featuredArticles.forEach(article => { %>
-                    <article class="featured-article-card" data-category="<%= article.category %>">
-                        <div class="featured-badge">Destaque</div>
-                        <div class="article-image">
-                            <div class="category-badge <%= article.category %>">
-                                <span class="category-icon">
-                                    <%= getCategoryIcon(article.category) %>
-                                </span>
-                                <%= getCategoryName(article.category) %>
-                            </div>
-                        </div>
-                        <div class="article-content">
-                            <div class="article-meta">
-                                <span class="reading-time">📖 <%= calculateReadingTime(article.content) %> min leitura</span>
-                                <span class="article-date">
-                                    <%= formatArticleDate(article.created_at) %>
-                                </span>
-                            </div>
-                            <h3 class="article-title">
-                                <a href="/article/<%= article.id %>"><%= article.title %></a>
-                            </h3>
-                            <p class="article-excerpt">
-                                <%= truncateText(article.content, 120) %>
-                            </p>
-                            <div class="article-footer">
-                                <div class="author-info">
-                                    <div class="author-avatar">👤</div>
-                                    <span class="author-name">Por <%= article.author_name %></span>
-                                </div>
-                                <a href="/article/<%= article.id %>" class="read-more">
-                                    Ler Artigo
-                                    <span class="arrow">→</span>
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                <% }); %>
-            </div>
-        </section>
-    <% } %>
-
-    <!-- Todos os Artigos -->
-    <section class="all-articles-section">
-        <div class="section-header">
-            <h2>📝 Todos os Artigos</h2>
-            <p id="results-count">
-                <%= articles && articles.length > 0 ? 
-                    `Mostrando ${articles.length} artigo${articles.length !== 1 ? 's' : ''}` : 
-                    'Nenhum artigo encontrado' %>
-            </p>
-        </div>
-
-        <% if (articles && articles.length > 0) { %>
-            <div class="articles-grid" id="articlesGrid">
-                <% articles.forEach(article => { %>
-                    <article class="article-card" data-category="<%= article.category %>" data-search-text="<%= article.title.toLowerCase() + ' ' + article.content.toLowerCase() %>">
-                        <div class="article-image">
-                            <div class="category-badge <%= article.category %>">
-                                <span class="category-icon">
-                                    <%= getCategoryIcon(article.category) %>
-                                </span>
-                                <%= getCategoryName(article.category) %>
-                            </div>
-                            <div class="image-overlay">
-                                <button class="quick-read-btn" data-article-id="<%= article.id %>">
-                                    📖 Leitura Rápida
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="article-content">
-                            <div class="article-meta">
-                                <span class="reading-time">📖 <%= calculateReadingTime(article.content) %> min</span>
-                                <span class="article-date">
-                                    <%= formatArticleDate(article.created_at) %>
-                                </span>
-                            </div>
-                            
-                            <h3 class="article-title">
-                                <a href="/article/<%= article.id %>"><%= article.title %></a>
-                            </h3>
-                            
-                            <p class="article-excerpt">
-                                <%= truncateText(article.content, 150) %>
-                            </p>
-                            
-                            <div class="article-stats">
-                                <div class="stat">
-                                    <span class="stat-icon">👁️</span>
-                                    <span class="stat-number"><%= generateRandomViews() %></span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-icon">💬</span>
-                                    <span class="stat-number"><%= generateRandomComments() %></span>
-                                </div>
-                                <div class="stat">
-                                    <span class="stat-icon">⭐</span>
-                                    <span class="stat-number"><%= generateRandomRating() %></span>
-                                </div>
-                            </div>
-                            
-                            <div class="article-footer">
-                                <div class="author-info">
-                                    <div class="author-avatar">👤</div>
-                                    <div class="author-details">
-                                        <span class="author-name"><%= article.author_name %></span>
-                                        <span class="author-role">Personal Trainer</span>
+                <!-- Grid de Artigos -->
+                <% if (articles && articles.length > 0) { %>
+                    <div class="articles-grid">
+                        <% articles.forEach(article => { %>
+                            <article class="article-card">
+                                <div class="article-image">
+                                    <div class="article-category <%= article.category %>">
+                                        <%= article.category ? 
+                                            (article.category === 'treinamento' ? '🏋️' :
+                                             article.category === 'nutricao' ? '🥗' :
+                                             article.category === 'saude' ? '❤️' :
+                                             article.category === 'motivacao' ? '💪' : '📝') 
+                                            : '📝' %>
+                                        <%= article.category ? article.category.charAt(0).toUpperCase() + article.category.slice(1) : 'Geral' %>
                                     </div>
                                 </div>
-                                <div class="article-actions">
-                                    <button class="action-btn save-article" data-article-id="<%= article.id %>" title="Salvar artigo">
-                                        💾
-                                    </button>
-                                    <button class="action-btn share-article" data-article-id="<%= article.id %>" title="Compartilhar">
-                                        📤
-                                    </button>
+                                <div class="article-content">
+                                    <h3><%= article.title %></h3>
+                                    <p class="article-excerpt">
+                                        <%= article.content.length > 150 ? 
+                                            article.content.substring(0, 150) + '...' : 
+                                            article.content %>
+                                    </p>
+                                    <div class="article-meta">
+                                        <span class="article-author">Por <%= article.author_name %></span>
+                                        <span class="article-date">
+                                            <%= new Date(article.created_at).toLocaleDateString('pt-BR') %>
+                                        </span>
+                                    </div>
+                                    <a href="/article/<%= article.id %>" class="article-link">Ler mais →</a>
                                 </div>
-                            </div>
-                        </div>
-                    </article>
-                <% }); %>
-            </div>
-
-            <!-- Load More Button -->
-            <div class="load-more-section">
-                <button id="loadMore" class="btn btn-outline btn-load-more">
-                    <span class="loading-spinner" style="display: none;">⏳</span>
-                    Carregar Mais Artigos
-                </button>
-            </div>
-        <% } else { %>
-            <div class="empty-state">
-                <div class="empty-icon">📝</div>
-                <h3>Nenhum artigo encontrado</h3>
-                <p>
-                    <%= currentCategory ? 
-                        `Não há artigos na categoria "${getCategoryName(currentCategory)}" ainda.` : 
-                        'Ainda não há artigos publicados.' %>
-                </p>
-                <% if (user && user.role === 'trainer') { %>
-                    <a href="/articles/create" class="btn btn-primary">
-                        ✏️ Criar Primeiro Artigo
-                    </a>
+                            </article>
+                        <% }); %>
+                    </div>
                 <% } else { %>
-                    <p class="empty-subtext">Fique ligado! Novos conteúdos em breve.</p>
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h3>Nenhum artigo encontrado</h3>
+                        <p>
+                            <%= currentCategory ? 
+                                `Não há artigos na categoria "${currentCategory}" ainda.` : 
+                                'Ainda não há artigos publicados.' %>
+                        </p>
+                        <% if (user && user.role === 'trainer') { %>
+                            <a href="/articles/create" class="btn btn-primary">Criar Primeiro Artigo</a>
+                        <% } %>
+                    </div>
                 <% } %>
             </div>
-        <% } %>
-    </section>
+        </div>
+    </main>
 
-    <!-- Newsletter Section -->
-    <section class="newsletter-section">
-        <div class="newsletter-card">
-            <div class="newsletter-content">
-                <h3>📧 Fique por Dentro</h3>
-                <p>Receba os melhores artigos e dicas diretamente no seu email</p>
-                <form class="newsletter-form">
-                    <div class="input-group">
-                        <input type="email" placeholder="seu@email.com" required>
-                        <button type="submit" class="btn btn-primary">
-                            Assinar
-                        </button>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FitConnect</h3>
+                    <p>Transformando vidas através do treinamento personalizado.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="/">Início</a></li>
+                        <li><a href="/#about">Como Funciona</a></li>
+                        <li><a href="/#features">Benefícios</a></li>
+                        <li><a href="/articles">Artigos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li>contato@fitconnect.com</li>
+                        <li>(11) 99999-9999</li>
+                        <li>São Paulo, SP</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Siga-nos</h4>
+                    <div class="social-links">
+                        <a href="#">📘</a>
+                        <a href="#">📷</a>
+                        <a href="#">🐦</a>
                     </div>
-                    <p class="newsletter-note">Sem spam, apenas conteúdo de qualidade.</p>
-                </form>
+                </div>
             </div>
-            <div class="newsletter-image">
-                <div class="newsletter-icon">📬</div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FitConnect. Todos os direitos reservados.</p>
             </div>
         </div>
-    </section>
-</div>
-
-<!-- Modal de Leitura Rápida -->
-<div id="quickReadModal" class="modal">
-    <div class="modal-content quick-read-modal">
-        <div class="modal-header">
-            <h3 id="quickReadTitle"></h3>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div id="quickReadContent" class="quick-read-content"></div>
-        </div>
-        <div class="modal-footer">
-            <a href="#" id="fullArticleLink" class="btn btn-primary">Ler Artigo Completo</a>
-            <button class="btn btn-outline close-modal">Fechar</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Funções auxiliares do EJS
-    function getCategoryIcon(category) {
-        const icons = {
-            'treinamento': '💪',
-            'nutricao': '🥗',
-            'saude': '❤️',
-            'motivacao': '🎯'
-        };
-        return icons[category] || '📝';
-    }
-
-    function getCategoryName(category) {
-        const names = {
-            'treinamento': 'Treinamento',
-            'nutricao': 'Nutrição',
-            'saude': 'Saúde',
-            'motivacao': 'Motivação'
-        };
-        return names[category] || 'Geral';
-    }
-
-    function calculateReadingTime(content) {
-        const wordsPerMinute = 200;
-        const words = content.split(/\s+/).length;
-        return Math.ceil(words / wordsPerMinute);
-    }
-
-    function formatArticleDate(dateString) {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = Math.abs(now - date);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) return 'Ontem';
-        if (diffDays < 7) return `${diffDays} dias atrás`;
-        if (diffDays < 30) return `${Math.floor(diffDays / 7)} sem atrás`;
-        
-        return date.toLocaleDateString('pt-BR');
-    }
-
-    function truncateText(text, length) {
-        if (text.length <= length) return text;
-        return text.substring(0, length) + '...';
-    }
-
-    function generateRandomViews() {
-        return Math.floor(Math.random() * 1000) + 100;
-    }
-
-    function generateRandomComments() {
-        return Math.floor(Math.random() * 50);
-    }
-
-    function generateRandomRating() {
-        return (Math.random() * 2 + 3).toFixed(1);
-    }
-</script>
-
-<script>
-    // JavaScript para funcionalidades dinâmicas
-    document.addEventListener('DOMContentLoaded', function() {
-        // Elementos DOM
-        const searchInput = document.getElementById('articleSearch');
-        const clearSearch = document.getElementById('clearSearch');
-        const filterTags = document.querySelectorAll('.filter-tag');
-        const articlesGrid = document.getElementById('articlesGrid');
-        const resultsCount = document.getElementById('resultsCount');
-        const loadMoreBtn = document.getElementById('loadMore');
-        const quickReadModal = document.getElementById('quickReadModal');
-        
-        // Estado da aplicação
-        let currentSearch = '';
-        let currentCategory = '<%= currentCategory || "" %>';
-        let currentPage = 1;
-        let isLoading = false;
-
-        // Inicializar contadores de categoria
-        initializeCategoryCounts();
-
-        // Event Listeners
-        searchInput.addEventListener('input', debounce(handleSearch, 300));
-        clearSearch.addEventListener('click', clearSearchHandler);
-        filterTags.forEach(tag => tag.addEventListener('click', handleFilterClick));
-        loadMoreBtn?.addEventListener('click', loadMoreArticles);
-        
-        // Modal handlers
-        document.querySelectorAll('.quick-read-btn').forEach(btn => {
-            btn.addEventListener('click', openQuickReadModal);
-        });
-        
-        document.querySelectorAll('.close-modal').forEach(btn => {
-            btn.addEventListener('click', closeQuickReadModal);
-        });
-
-        // Save article handlers
-        document.querySelectorAll('.save-article').forEach(btn => {
-            btn.addEventListener('click', toggleSaveArticle);
-        });
-
-        // Share article handlers
-        document.querySelectorAll('.share-article').forEach(btn => {
-            btn.addEventListener('click', shareArticle);
-        });
-
-        // Funções de Filtro e Busca
-        function handleSearch(event) {
-            currentSearch = event.target.value.toLowerCase().trim();
-            clearSearch.style.display = currentSearch ? 'block' : 'none';
-            filterArticles();
-        }
-
-        function clearSearchHandler() {
-            searchInput.value = '';
-            currentSearch = '';
-            clearSearch.style.display = 'none';
-            filterArticles();
-        }
-
-        function handleFilterClick(event) {
-            const category = event.currentTarget.dataset.category;
-            
-            // Atualizar UI dos filtros
-            filterTags.forEach(tag => tag.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            currentCategory = category;
-            currentPage = 1;
-            filterArticles();
-            
-            // Scroll para a seção de artigos
-            document.querySelector('.all-articles-section').scrollIntoView({ 
-                behavior: 'smooth' 
-            });
-        }
-
-        function filterArticles() {
-            const articles = document.querySelectorAll('.article-card, .featured-article-card');
-            let visibleCount = 0;
-
-            articles.forEach(article => {
-                const matchesCategory = !currentCategory || article.dataset.category === currentCategory;
-                const matchesSearch = !currentSearch || 
-                    article.dataset.searchText.includes(currentSearch);
-
-                if (matchesCategory && matchesSearch) {
-                    article.style.display = 'block';
-                    visibleCount++;
-                    // Animação de entrada
-                    setTimeout(() => {
-                        article.style.opacity = '1';
-                        article.style.transform = 'translateY(0)';
-                    }, 100);
-                } else {
-                    article.style.opacity = '0';
-                    article.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        article.style.display = 'none';
-                    }, 300);
-                }
-            });
-
-            // Atualizar contador de resultados
-            updateResultsCount(visibleCount);
-        }
-
-        function updateResultsCount(count) {
-            if (resultsCount) {
-                resultsCount.textContent = count === 0 ? 
-                    'Nenhum artigo encontrado' : 
-                    `Mostrando ${count} artigo${count !== 1 ? 's' : ''}`;
-            }
-        }
-
-        function initializeCategoryCounts() {
-            const categories = ['treinamento', 'nutricao', 'saude', 'motivacao'];
-            
-            categories.forEach(category => {
-                const countElement = document.getElementById(`count-${category}`);
-                if (countElement) {
-                    const articles = document.querySelectorAll(`[data-category="${category}"]`);
-                    countElement.textContent = articles.length;
-                }
-            });
-        }
-
-        // Carregar Mais Artigos
-        async function loadMoreArticles() {
-            if (isLoading) return;
-            
-            isLoading = true;
-            loadMoreBtn.classList.add('loading');
-            loadMoreBtn.querySelector('.loading-spinner').style.display = 'inline-block';
-            loadMoreBtn.disabled = true;
-
-            try {
-                // Simular carregamento de mais artigos
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Em uma implementação real, aqui faríamos uma requisição para a API
-                // const response = await fetch(`/api/articles?page=${currentPage + 1}&category=${currentCategory}&search=${currentSearch}`);
-                // const newArticles = await response.json();
-                
-                // Por enquanto, apenas simulamos
-                currentPage++;
-                
-                if (currentPage >= 3) { // Simular fim dos artigos
-                    loadMoreBtn.style.display = 'none';
-                    showNotification('Todos os artigos foram carregados!', 'success');
-                }
-                
-            } catch (error) {
-                console.error('Erro ao carregar mais artigos:', error);
-                showNotification('Erro ao carregar mais artigos', 'error');
-            } finally {
-                isLoading = false;
-                loadMoreBtn.classList.remove('loading');
-                loadMoreBtn.querySelector('.loading-spinner').style.display = 'none';
-                loadMoreBtn.disabled = false;
-            }
-        }
-
-        // Modal de Leitura Rápida
-        async function openQuickReadModal(event) {
-            const articleId = event.currentTarget.dataset.articleId;
-            
-            try {
-                // Simular carregamento do conteúdo
-                const articleCard = event.currentTarget.closest('.article-card');
-                const title = articleCard.querySelector('.article-title').textContent;
-                const excerpt = articleCard.querySelector('.article-excerpt').textContent;
-                
-                document.getElementById('quickReadTitle').textContent = title;
-                document.getElementById('quickReadContent').innerHTML = `
-                    <div class="quick-read-excerpt">
-                        <p>${excerpt}</p>
-                        <div class="quick-read-more">
-                            <p>Este é um preview do artigo. Para continuar lendo e acessar todo o conteúdo completo...</p>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('fullArticleLink').href = `/article/${articleId}`;
-                quickReadModal.style.display = 'block';
-                
-                // Animar entrada
-                setTimeout(() => {
-                    document.querySelector('.quick-read-modal').style.transform = 'scale(1)';
-                    document.querySelector('.quick-read-modal').style.opacity = '1';
-                }, 10);
-                
-            } catch (error) {
-                console.error('Erro ao abrir leitura rápida:', error);
-                showNotification('Erro ao carregar o artigo', 'error');
-            }
-        }
-
-        function closeQuickReadModal() {
-            document.querySelector('.quick-read-modal').style.transform = 'scale(0.9)';
-            document.querySelector('.quick-read-modal').style.opacity = '0';
-            
-            setTimeout(() => {
-                quickReadModal.style.display = 'none';
-            }, 300);
-        }
-
-        // Salvar Artigo
-        function toggleSaveArticle(event) {
-            const button = event.currentTarget;
-            const articleId = button.dataset.articleId;
-            
-            button.classList.toggle('saved');
-            button.title = button.classList.contains('saved') ? 
-                'Artigo salvo' : 'Salvar artigo';
-            button.innerHTML = button.classList.contains('saved') ? 
-                '💾✓' : '💾';
-            
-            const message = button.classList.contains('saved') ?
-                'Artigo salvo para ler depois' : 'Artigo removido dos salvos';
-            
-            showNotification(message, 'success');
-            
-            // Em uma implementação real, salvaríamos no localStorage ou API
-            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
-            if (button.classList.contains('saved')) {
-                if (!savedArticles.includes(articleId)) {
-                    savedArticles.push(articleId);
-                }
-            } else {
-                const index = savedArticles.indexOf(articleId);
-                if (index > -1) {
-                    savedArticles.splice(index, 1);
-                }
-            }
-            localStorage.setItem('savedArticles', JSON.stringify(savedArticles));
-        }
-
-        // Compartilhar Artigo
-        function shareArticle(event) {
-            const articleId = event.currentTarget.dataset.articleId;
-            const articleCard = event.currentTarget.closest('.article-card');
-            const title = articleCard.querySelector('.article-title').textContent;
-            const url = `${window.location.origin}/article/${articleId}`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: title,
-                    text: 'Confira este artigo no FitConnect:',
-                    url: url
-                }).then(() => {
-                    showNotification('Artigo compartilhado com sucesso!', 'success');
-                }).catch(error => {
-                    console.error('Erro ao compartilhar:', error);
-                });
-            } else {
-                // Fallback para copiar link
-                navigator.clipboard.writeText(url).then(() => {
-                    showNotification('Link copiado para a área de transferência!', 'success');
-                }).catch(() => {
-                    // Fallback mais básico
-                    prompt('Copie o link do artigo:', url);
-                });
-            }
-        }
-
-        // Utilitários
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        function showNotification(message, type = 'info') {
-            // Implementação da função de notificação (já existente no main.js)
-            if (typeof window.showNotification === 'function') {
-                window.showNotification(message, type);
-            } else {
-                alert(message);
-            }
-        }
-
-        // Fechar modal ao clicar fora
-        quickReadModal.addEventListener('click', function(event) {
-            if (event.target === quickReadModal) {
-                closeQuickReadModal();
-            }
-        });
-
-        // Inicializar artigos salvos
-        initializeSavedArticles();
-        
-        function initializeSavedArticles() {
-            const savedArticles = JSON.parse(localStorage.getItem('savedArticles') || '[]');
-            document.querySelectorAll('.save-article').forEach(btn => {
-                const articleId = btn.dataset.articleId;
-                if (savedArticles.includes(articleId)) {
-                    btn.classList.add('saved');
-                    btn.title = 'Artigo salvo';
-                    btn.innerHTML = '💾✓';
-                }
-            });
-        }
-    });
-</script>
-
-<style>
-    /* Variáveis e Reset */
-    .articles-page {
-        --primary-blue: #4361ee;
-        --secondary-blue: #3a56d4;
-        --purple: #7209b7;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --gray-100: #f8f9fa;
-        --gray-200: #e9ecef;
-        --gray-300: #dee2e6;
-        --gray-400: #ced4da;
-        --gray-500: #6c757d;
-        --gray-600: #495057;
-        --gray-700: #343a40;
-        --gray-800: #212529;
-        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-        --radius: 12px;
-        --transition: all 0.3s ease;
-    }
-
-    /* Hero Section */
-    .articles-hero {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--purple) 100%);
-        color: white;
-        padding: 120px 0 80px;
-        margin-top: 80px;
-        text-align: center;
-    }
-
-    .hero-content h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        line-height: 1.2;
-    }
-
-    .hero-subtitle {
-        font-size: 1.3rem;
-        opacity: 0.9;
-        margin-bottom: 2rem;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .hero-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .btn-with-icon {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    /* Filtros Section */
-    .articles-filters-section {
-        padding: 4rem 0 2rem;
-    }
-
-    .filters-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .filters-header h2 {
-        font-size: 2.5rem;
-        color: var(--gray-800);
-        margin-bottom: 1rem;
-    }
-
-    .filters-header p {
-        color: var(--gray-600);
-        font-size: 1.1rem;
-    }
-
-    .filters-container {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    /* Barra de Busca */
-    .search-box {
-        margin-bottom: 2rem;
-    }
-
-    .search-input-wrapper {
-        position: relative;
-        max-width: 500px;
-        margin: 0 auto;
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 1.2rem;
-    }
-
-    .search-input-wrapper input {
-        width: 100%;
-        padding: 1rem 3rem 1rem 3rem;
-        border: 2px solid var(--gray-300);
-        border-radius: var(--radius);
-        font-size: 1rem;
-        transition: var(--transition);
-        background: white;
-    }
-
-    .search-input-wrapper input:focus {
-        outline: none;
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-    }
-
-    .search-clear {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        color: var(--gray-500);
-        display: none;
-    }
-
-    .search-clear:hover {
-        color: var(--gray-700);
-    }
-
-    /* Filtros de Categoria */
-    .categories-filter {
-        margin-bottom: 2rem;
-    }
-
-    .filter-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        justify-content: center;
-    }
-
-    .filter-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        background: white;
-        border: 2px solid var(--gray-300);
-        border-radius: 50px;
-        cursor: pointer;
-        transition: var(--transition);
-        font-weight: 500;
-        color: var(--gray-700);
-    }
-
-    .filter-tag:hover {
-        border-color: var(--primary-blue);
-        transform: translateY(-2px);
-    }
-
-    .filter-tag.active {
-        background: var(--primary-blue);
-        border-color: var(--primary-blue);
-        color: white;
-    }
-
-    .tag-icon {
-        font-size: 1.1rem;
-    }
-
-    .tag-count {
-        background: var(--gray-200);
-        color: var(--gray-600);
-        padding: 0.25rem 0.5rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    .filter-tag.active .tag-count {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    /* Section Headers */
-    .section-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .section-header h2 {
-        font-size: 2.2rem;
-        color: var(--gray-800);
-        margin-bottom: 0.5rem;
-    }
-
-    .section-header p {
-        color: var(--gray-600);
-        font-size: 1.1rem;
-    }
-
-    /* Artigos em Destaque */
-    .featured-articles {
-        padding: 2rem 0 4rem;
-    }
-
-    .featured-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 2rem;
-    }
-
-    .featured-article-card {
-        background: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-lg);
-        overflow: hidden;
-        transition: var(--transition);
-        position: relative;
-        border: 1px solid var(--gray-200);
-    }
-
-    .featured-article-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .featured-badge {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        z-index: 2;
-    }
-
-    /* Grid de Artigos Principal */
-    .all-articles-section {
-        padding: 2rem 0 4rem;
-    }
-
-    .articles-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
-    }
-
-    .article-card {
-        background: white;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        overflow: hidden;
-        transition: var(--transition);
-        border: 1px solid var(--gray-200);
-        opacity: 1;
-        transform: translateY(0);
-        transition: all 0.3s ease;
-    }
-
-    .article-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    /* Imagem do Artigo */
-    .article-image {
-        height: 200px;
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--purple) 100%);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .category-badge {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        backdrop-filter: blur(10px);
-    }
-
-    .category-badge.treinamento {
-        color: #1e40af;
-    }
-
-    .category-badge.nutricao {
-        color: #166534;
-    }
-
-    .category-badge.saude {
-        color: #dc2626;
-    }
-
-    .category-badge.motivacao {
-        color: #ea580c;
-    }
-
-    .image-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: var(--transition);
-    }
-
-    .article-card:hover .image-overlay {
-        opacity: 1;
-    }
-
-    .quick-read-btn {
-        background: white;
-        color: var(--gray-800);
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 25px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-    .quick-read-btn:hover {
-        background: var(--primary-blue);
-        color: white;
-        transform: scale(1.05);
-    }
-
-    /* Conteúdo do Artigo */
-    .article-content {
-        padding: 1.5rem;
-    }
-
-    .article-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        font-size: 0.8rem;
-        color: var(--gray-500);
-    }
-
-    .reading-time, .article-date {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .article-title {
-        margin: 0 0 1rem 0;
-        line-height: 1.4;
-    }
-
-    .article-title a {
-        color: var(--gray-800);
-        text-decoration: none;
-        transition: var(--transition);
-    }
-
-    .article-title a:hover {
-        color: var(--primary-blue);
-    }
-
-    .article-excerpt {
-        color: var(--gray-600);
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Estatísticas do Artigo */
-    .article-stats {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--gray-200);
-    }
-
-    .stat {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        font-size: 0.8rem;
-        color: var(--gray-600);
-    }
-
-    .stat-number {
-        font-weight: 600;
-    }
-
-    /* Footer do Artigo */
-    .article-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .author-info {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .author-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--gray-200);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-    }
-
-    .author-details {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .author-name {
-        font-weight: 600;
-        color: var(--gray-800);
-        font-size: 0.9rem;
-    }
-
-    .author-role {
-        font-size: 0.7rem;
-        color: var(--gray-500);
-    }
-
-    .article-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .action-btn {
-        background: none;
-        border: none;
-        padding: 0.5rem;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: var(--transition);
-        font-size: 1.1rem;
-    }
-
-    .action-btn:hover {
-        background: var(--gray-100);
-        transform: scale(1.1);
-    }
-
-    .action-btn.saved {
-        color: var(--success);
-    }
-
-    /* Load More Section */
-    .load-more-section {
-        text-align: center;
-        padding: 2rem 0;
-    }
-
-    .btn-load-more {
-        padding: 1rem 2rem;
-        font-size: 1rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-load-more.loading {
-        opacity: 0.7;
-        pointer-events: none;
-    }
-
-    .loading-spinner {
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    /* Newsletter Section */
-    .newsletter-section {
-        padding: 4rem 0;
-    }
-
-    .newsletter-card {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--purple) 100%);
-        color: white;
-        border-radius: var(--radius);
-        padding: 3rem;
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
-        align-items: center;
-    }
-
-    .newsletter-content h3 {
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-    }
-
-    .newsletter-content p {
-        opacity: 0.9;
-        margin-bottom: 1.5rem;
-        font-size: 1.1rem;
-    }
-
-    .input-group {
-        display: flex;
-        gap: 0.5rem;
-        max-width: 400px;
-    }
-
-    .input-group input {
-        flex: 1;
-        padding: 1rem;
-        border: none;
-        border-radius: var(--radius);
-        font-size: 1rem;
-    }
-
-    .input-group input:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-    }
-
-    .newsletter-note {
-        font-size: 0.8rem;
-        opacity: 0.7;
-        margin-top: 0.5rem;
-    }
-
-    .newsletter-image {
-        text-align: center;
-    }
-
-    .newsletter-icon {
-        font-size: 4rem;
-        opacity: 0.8;
-    }
-
-    /* Modal de Leitura Rápida */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
-    }
-
-    .quick-read-modal {
-        background: white;
-        margin: 5% auto;
-        border-radius: var(--radius);
-        width: 90%;
-        max-width: 600px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        transform: scale(0.9);
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    .modal-header {
-        padding: 1.5rem 2rem;
-        border-bottom: 1px solid var(--gray-200);
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .modal-header h3 {
-        margin: 0;
-        color: var(--gray-800);
-        line-height: 1.4;
-        flex: 1;
-        padding-right: 1rem;
-    }
-
-    .close-modal {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: var(--gray-500);
-        padding: 0;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .close-modal:hover {
-        color: var(--gray-700);
-    }
-
-    .modal-body {
-        padding: 2rem;
-        max-height: 60vh;
-        overflow-y: auto;
-    }
-
-    .quick-read-content {
-        line-height: 1.7;
-        color: var(--gray-700);
-    }
-
-    .quick-read-excerpt {
-        margin-bottom: 1.5rem;
-    }
-
-    .quick-read-more {
-        background: var(--gray-100);
-        padding: 1rem;
-        border-radius: var(--radius);
-        border-left: 4px solid var(--primary-blue);
-    }
-
-    .modal-footer {
-        padding: 1.5rem 2rem;
-        border-top: 1px solid var(--gray-200);
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--gray-500);
-    }
-
-    .empty-icon {
-        font-size: 4rem;
-        margin-bottom: 1.5rem;
-        opacity: 0.5;
-    }
-
-    .empty-state h3 {
-        margin: 0 0 1rem 0;
-        color: var(--gray-600);
-    }
-
-    .empty-state p {
-        margin: 0 0 2rem 0;
-        font-size: 1.1rem;
-    }
-
-    .empty-subtext {
-        font-size: 0.9rem !important;
-        opacity: 0.7;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .articles-hero {
-            padding: 100px 0 60px;
-        }
-
-        .hero-content h1 {
-            font-size: 2.2rem;
-        }
-
-        .hero-subtitle {
-            font-size: 1.1rem;
-        }
-
-        .hero-actions {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .filter-tags {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .filter-tag {
-            justify-content: center;
-        }
-
-        .featured-grid,
-        .articles-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .newsletter-card {
-            grid-template-columns: 1fr;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .input-group {
-            flex-direction: column;
-        }
-
-        .article-footer {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        .article-actions {
-            align-self: flex-end;
-        }
-
-        .modal-footer {
-            flex-direction: column;
-        }
-
-        .quick-read-modal {
-            margin: 10% auto;
-            width: 95%;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .articles-hero {
-            padding: 80px 0 40px;
-        }
-
-        .hero-content h1 {
-            font-size: 1.8rem;
-        }
-
-        .filters-header h2 {
-            font-size: 2rem;
-        }
-
-        .section-header h2 {
-            font-size: 1.8rem;
-        }
-
-        .article-content {
-            padding: 1rem;
-        }
-
-        .article-stats {
-            justify-content: space-between;
-        }
-    }
-</style>
-
-<%- include('../partials/footer') %>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
