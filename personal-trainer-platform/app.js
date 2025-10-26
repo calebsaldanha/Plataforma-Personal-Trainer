@@ -36,12 +36,14 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware de autenticação
+// Middleware de autenticação - CORRIGIDO
 app.use((req, res, next) => {
-  res.locals.user = req.session.user;
+  // Garantir que as variáveis sempre existam
+  res.locals.user = req.session.user || null;
   res.locals.isAuthenticated = !!req.session.user;
   next();
 });
+
 
 // Routes
 app.use('/', require('./routes/index'));
