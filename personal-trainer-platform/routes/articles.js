@@ -14,7 +14,11 @@ router.get('/articles', (req, res) => {
     db.all(query, [], (err, articles) => {
         if (err) {
             console.error('Erro ao buscar artigos:', err);
-            return res.status(500).render('error', { message: 'Erro ao carregar artigos' });
+            return res.status(500).render('error', { 
+                message: 'Erro ao carregar artigos',
+                user: req.session ? req.session.user : null,
+                isAuthenticated: !!(req.session && req.session.user)
+            });
         }
 
         res.render('pages/articles', {
@@ -40,11 +44,19 @@ router.get('/article/:id', (req, res) => {
     db.get(query, [articleId], (err, article) => {
         if (err) {
             console.error('Erro ao buscar artigo:', err);
-            return res.status(500).render('error', { message: 'Erro ao carregar artigo' });
+            return res.status(500).render('error', { 
+                message: 'Erro ao carregar artigo',
+                user: req.session ? req.session.user : null,
+                isAuthenticated: !!(req.session && req.session.user)
+            });
         }
 
         if (!article) {
-            return res.status(404).render('error', { message: 'Artigo não encontrado' });
+            return res.status(404).render('error', { 
+                message: 'Artigo não encontrado',
+                user: req.session ? req.session.user : null,
+                isAuthenticated: !!(req.session && req.session.user)
+            });
         }
 
         res.render('pages/article-details', {
@@ -64,6 +76,7 @@ router.get('/articles/create', (req, res) => {
 
     res.render('pages/create-article', {
         user: req.session.user,
+        isAuthenticated: true,
         title: 'Criar Artigo - FitConnect'
     });
 });
@@ -115,7 +128,11 @@ router.get('/articles/category/:category', (req, res) => {
     db.all(query, [category], (err, articles) => {
         if (err) {
             console.error('Erro ao buscar artigos por categoria:', err);
-            return res.status(500).render('error', { message: 'Erro ao carregar artigos' });
+            return res.status(500).render('error', { 
+                message: 'Erro ao carregar artigos',
+                user: req.session ? req.session.user : null,
+                isAuthenticated: !!(req.session && req.session.user)
+            });
         }
 
         res.render('pages/articles', {
