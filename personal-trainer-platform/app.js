@@ -32,29 +32,17 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware de autenticação - CORRIGIDO
+// Middleware de autenticação
 app.use((req, res, next) => {
-  // Garantir que as variáveis sempre existam
   res.locals.user = req.session.user || null;
   res.locals.isAuthenticated = !!req.session.user;
   next();
 });
 
-// Routes
-app.use('/', require('./routes/index'));
-app.use('/auth', require('./routes/auth'));
-app.use('/client', require('./routes/client'));
-app.use('/admin', require('./routes/admin'));
-app.use('/api', require('./routes/api'));
-app.use('/chat', require('./routes/chat'));
-app.use('/client', require('./routes/workouts'));
-app.use('/admin', require('./routes/workouts'));
-app.use('/', require('./routes/articles'));
-
 // Database initialization
 init();
 
-// Routes - VERIFICAR SE ESTÁ CORRETO
+// ✅ ROTAS - APENAS UMA VEZ!
 app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
 app.use('/client', require('./routes/client'));
@@ -63,12 +51,9 @@ app.use('/api', require('./routes/api'));
 app.use('/chat', require('./routes/chat'));
 app.use('/client', require('./routes/workouts'));
 app.use('/admin', require('./routes/workouts'));
+app.use('/', require('./routes/articles')); // ✅ Rota de artigos adicionada
 
-// ✅ IMPORTANTE: Adicionar rota de artigos
-app.use('/', require('./routes/articles'));
-
-
-// Error handling - CORRIGIDO
+// Error handling
 app.use((err, req, res, next) => {
   console.error('Erro na aplicação:', err.stack);
   res.status(500).render('error', { 
@@ -78,7 +63,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handling - CORRIGIDO
+// 404 handling
 app.use((req, res) => {
   res.status(404).render('error', { 
     message: 'Página não encontrada',
@@ -89,8 +74,9 @@ app.use((req, res) => {
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log('Servidor rodando na porta ' + PORT);
-    console.log('Acesse: http://localhost:' + PORT);
+    console.log('🚀 Servidor rodando na porta ' + PORT);
+    console.log('📖 Acesse: http://localhost:' + PORT);
+    console.log('📚 Artigos: http://localhost:' + PORT + '/articles');
   });
 }
 
