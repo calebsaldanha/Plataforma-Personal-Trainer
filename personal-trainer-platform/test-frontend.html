@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-btn { padding: 10px 20px; margin: 10px; background: #4361ee; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste Frontend - Login</h1>
+    
+    <div class="log" id="log"></div>
+    
+    <button class="test-btn" onclick="testJS()">Testar JavaScript</button>
+    <button class="test-btn" onclick="testForm()">Testar Formulário</button>
+    <button class="test-btn" onclick="testFetch()">Testar Fetch API</button>
+    
+    <script>
+        function log(msg) {
+            document.getElementById('log').innerHTML += `<div>${new Date().toLocaleTimeString()}: ${msg}</div>`;
+        }
+        
+        function testJS() {
+            log('✅ JavaScript está funcionando!');
+        }
+        
+        function testForm() {
+            log('🔍 Testando formulário...');
+            const form = document.querySelector('form');
+            if (form) {
+                log('✅ Formulário encontrado no DOM');
+            } else {
+                log('❌ Nenhum formulário encontrado');
+            }
+        }
+        
+        function testFetch() {
+            log('🌐 Testando Fetch API...');
+            fetch('/api/health')
+                .then(response => response.json())
+                .then(data => {
+                    log('✅ Fetch funcionando: ' + data.status);
+                })
+                .catch(error => {
+                    log('❌ Fetch falhou: ' + error.message);
+                });
+        }
+        
+        log('🔧 Página carregada - clique nos botões para testar');
+    </script>
+</body>
+</html>
