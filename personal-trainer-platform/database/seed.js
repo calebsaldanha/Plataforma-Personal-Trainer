@@ -1,82 +1,125 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { db } = require('./db');
 
-// Configurar conexão com o banco diretamente
-const dbPath = path.join(__dirname, 'personal_trainer.db');
-const db = new sqlite3.Database(dbPath);
+const seedData = () => {
+    console.log('🌱 Populando banco de dados com dados de exemplo...');
 
-// Popular banco com dados de teste
-const seedDatabase = () => {
-    console.log('🌱 Populando banco de dados com dados de teste...');
+    // Inserir usuários de exemplo
+    const users = [
+        { name: 'Personal Trainer', email: 'trainer@fitconnect.com', password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/eoGM3XjLr12eC5qD2', role: 'trainer' },
+        { name: 'João Silva', email: 'joao@email.com', password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/eoGM3XjLr12eC5qD2', role: 'client' },
+        { name: 'Maria Santos', email: 'maria@email.com', password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/eoGM3XjLr12eC5qD2', role: 'client' }
+    ];
 
-    // Inserir um personal trainer
-    db.run(`INSERT OR IGNORE INTO users (name, email, password, role) VALUES (?, ?, ?, ?)`, 
-        ['Personal Trainer', 'trainer@fitconnect.com', '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/eoCOYTT7hCKv6/zV6', 'trainer'],
-        function(err) {
-            if (err) {
-                console.error('Erro ao inserir trainer:', err);
-                return;
-            }
-            
-            const trainerId = this.lastID;
-            console.log('✅ Personal Trainer criado com ID:', trainerId);
+    users.forEach(user => {
+        db.run(
+            'INSERT OR IGNORE INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+            [user.name, user.email, user.password, user.role]
+        );
+    });
 
-            // Inserir artigos de exemplo
-            const sampleArticles = [
-                {
-                    title: '10 Dicas para Manter a Motivação nos Treinos',
-                    content: 'Manter a motivação nos treinos pode ser desafiador, mas com essas estratégias você vai conseguir manter a consistência. Primeiro, estabeleça metas realistas e comemore pequenas vitórias. Segundo, varie seus treinos para evitar a monotonia. Terceiro, encontre um parceiro de treino para aumentar o compromisso. Quarto, acompanhe seu progresso com métricas. Quinto, recompense-se pelos objetivos alcançados. Sexto, ouça música para aumentar a energia. Sétimo, visualize seus objetivos. Oitavo, descanse adequadamente. Nono, mantenha uma alimentação balanceada. Décimo, lembre-se do porquê você começou!',
-                    category: 'motivacao',
-                    author_id: trainerId
-                },
-                {
-                    title: 'Importância da Alimentação no Treino',
-                    content: 'A nutrição adequada é fundamental para potencializar seus resultados e melhorar seu desempenho nos treinos. O que você come antes do treino fornece energia, enquanto a alimentação pós-treino ajuda na recuperação muscular. Carboidratos complexos como batata-doce e aveia são excelentes fontes de energia pré-treino. Proteínas como frango, ovos e whey protein são essenciais para a reconstrução muscular após o exercício. Gorduras saudáveis como abacate e castanhas fornecem energia sustentada. Hidratação é crucial - beba água antes, durante e depois dos treinos. Suplementos como BCAA e creatina podem complementar uma dieta balanceada, mas não substituem alimentos reais.',
-                    category: 'nutricao',
-                    author_id: trainerId
-                },
-                {
-                    title: 'Como Prevenir Lesões Durante o Treino',
-                    content: 'Conheça as técnicas para treinar com segurança e evitar lesões durante seus exercícios. Primeiro, sempre faça um aquecimento adequado de 5-10 minutos antes de começar. Segundo, mantenha a forma correta durante todos os exercícios - qualidade é mais importante que quantidade. Terceiro, aumente a intensidade gradualmente, seguindo a regra dos 10%. Quarto, use calçados apropriados para o tipo de exercício. Quinto, descanse entre os treinos para permitir a recuperação muscular. Sexto, alongue-se após os treinos. Sétimo, ouça seu corpo - dor aguda é um sinal de alerta. Oitavo, mantenha-se hidratado. Nono, varie os grupos musculares trabalhados. Décimo, consulte um profissional antes de iniciar qualquer nova modalidade.',
-                    category: 'treinamento',
-                    author_id: trainerId
-                },
-                {
-                    title: 'Benefícios do Exercício para a Saúde Mental',
-                    content: 'Além dos benefícios físicos, o exercício regular tem impactos profundos na saúde mental. A atividade física libera endorfinas, conhecidas como "hormônios da felicidade", que melhoram o humor e reduzem o estresse. Exercícios aeróbicos como corrida e natação são particularmente eficazes para combater a ansiedade. O treino de força aumenta a autoconfiança e a autoestima. A consistência nos exercícios cria disciplina que se reflete em outras áreas da vida. Grupos de exercício proporcionam socialização e suporte. Mesmo 30 minutos de atividade moderada diária podem fazer uma diferença significativa no bem-estar mental.',
-                    category: 'saude',
-                    author_id: trainerId
-                }
-            ];
+    // Inserir artigos de exemplo
+    const articles = [
+        {
+            title: '10 Dicas para Manter a Motivação nos Treinos',
+            content: `Manter a motivação nos treinos é um desafio comum para muitas pessoas. Aqui estão 10 dicas comprovadas para ajudar você a manter a consistência:
 
-            let articlesInserted = 0;
-            
-            sampleArticles.forEach((article, index) => {
-                db.run(`INSERT OR IGNORE INTO articles (title, content, author_id, category) VALUES (?, ?, ?, ?)`,
-                    [article.title, article.content, article.author_id, article.category],
-                    function(err) {
-                        if (err) {
-                            console.error('Erro ao inserir artigo:', err);
-                        } else {
-                            articlesInserted++;
-                            console.log(`✅ Artigo "${article.title}" criado com ID:`, this.lastID);
-                        }
+1. **Estabeleça metas realistas** - Metas alcançáveis mantêm você motivado
+2. **Crie uma rotina** - A consistência é a chave do sucesso
+3. **Encontre um parceiro de treino** - A responsabilidade compartilhada ajuda
+4. **Varie os exercícios** - Evite a monotonia
+5. **Acompanhe seu progresso** - Ver resultados é motivador
+6. **Recompense-se** - Celebre as pequenas vitórias
+7. **Escute música energética** - Ajuda no ritmo e disposição
+8. **Visualize seus objetivos** - Mantenha o foco no longo prazo
+9. **Descanse adequadamente** - O descanso é parte do progresso
+10. **Não seja tão duro consigo mesmo** - Permita-se recomeçar
 
-                        // Fechar conexão quando todos os artigos forem inseridos
-                        if (articlesInserted === sampleArticles.length) {
-                            console.log('🎉 Dados de teste inseridos com sucesso!');
-                            db.close();
-                        }
-                    }
-                );
-            });
+Lembre-se: a jornada fitness é uma maratona, não uma corrida!`,
+            author_id: 1,
+            category: 'motivacao'
+        },
+        {
+            title: 'Alimentação para Melhor Performance',
+            content: `A nutrição adequada é fundamental para potencializar seus resultados nos treinos. Aqui está um guia completo:
+
+**Pré-treino (1-2 horas antes):**
+- Carboidratos complexos: aveia, batata doce, pão integral
+- Proteínas magras: frango, peixe, whey protein
+- Evite gorduras e fibras em excesso
+
+**Pós-treino (até 2 horas após):**
+- Proteínas para recuperação muscular
+- Carboidratos para repor glicogênio
+- Hidratação é crucial
+
+**Alimentos essenciais:**
+- 🥩 Proteínas: frango, peixe, ovos, whey
+- 🍠 Carboidratos: batata doce, arroz integral, aveia
+- 🥑 Gorduras boas: abacate, castanhas, azeite
+- 🥦 Vegetais: brócolis, espinafre, couve
+
+**Hidratação:**
+- Beba água regularmente
+- Considere bebidas isotônicas em treinos intensos
+- Evite refrigerantes e sucos industrializados
+
+Lembre-se: cada corpo é único, ajuste conforme suas necessidades!`,
+            author_id: 1,
+            category: 'nutricao'
+        },
+        {
+            title: 'Como Prevenir Lesões no Treino',
+            content: `Prevenir lesões é essencial para manter a consistência nos treinos. Siga estas recomendações:
+
+**Aquecimento (5-10 minutos):**
+- Mobilidade articular
+- Ativação muscular
+- Elevação gradual da frequência cardíaca
+
+**Técnica Correta:**
+- Aprenda a execução adequada de cada exercício
+- Comece com cargas leves
+- Peça orientação de um profissional
+
+**Progressão Gradual:**
+- Aumente carga e volume gradualmente
+- Respeite os limites do seu corpo
+- Não tente avançar muito rápido
+
+**Recuperação:**
+- Durma 7-9 horas por noite
+- Alimente-se adequadamente
+- Inclua dias de descanso na rotina
+
+**Sinais de Alerta:**
+- Dor aguda durante o exercício
+- Inchaço ou vermelhidão
+- Perda de amplitude de movimento
+
+**Dicas Extras:**
+- Use calçados adequados
+- Mantenha a hidratação
+- Alongue-se após os treinos
+
+A prevenção é sempre melhor que a reabilitação!`,
+            author_id: 1,
+            category: 'treinamento'
         }
-    );
+    ];
+
+    articles.forEach(article => {
+        db.run(
+            'INSERT OR IGNORE INTO articles (title, content, author_id, category) VALUES (?, ?, ?, ?)',
+            [article.title, article.content, article.author_id, article.category]
+        );
+    });
+
+    console.log('✅ Dados de exemplo inseridos com sucesso!');
 };
 
 // Executar apenas se chamado diretamente
 if (require.main === module) {
-    seedDatabase();
+    seedData();
 }
 
-module.exports = { seedDatabase };
+module.exports = { seedData };
