@@ -2,12 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../database/db');
 
-// Página do chat
-router.get('/chat', (req, res) => {
+// Middleware de autenticação
+const requireAuth = (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/auth/login');
     }
+    next();
+};
 
+// Página do chat
+router.get('/chat', requireAuth, (req, res) => {
     const userId = req.session.user.id;
     const userRole = req.session.user.role;
 
@@ -46,7 +50,7 @@ router.get('/chat', (req, res) => {
         if (userRole === 'trainer') {
             usersQuery = 'SELECT id, name FROM users WHERE role = "client"';
         } else {
-            usersQuery = 'SELECT id, name FROM users WHERE role = "trainer"';
+            usersQuery = 'SELECT id, name FROM users WHERE role = "trainer" LIMIT 1';
         }
 
         db.all(usersQuery, [], (err, users) => {
@@ -66,11 +70,7 @@ router.get('/chat', (req, res) => {
 });
 
 // Enviar mensagem
-router.post('/chat/send', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ success: false, message: 'Não autorizado' });
-    }
-
+router.post('/chat/send', requireAuth, (req, res) => {
     const { message, receiver_id } = req.body;
     const sender_id = req.session.user.id;
 
@@ -91,11 +91,7 @@ router.post('/chat/send', (req, res) => {
 });
 
 // Buscar mensagens
-router.get('/chat/messages/:receiverId?', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ success: false, message: 'Não autorizado' });
-    }
-
+router.get('/chat/messages/:receiverId?', requireAuth, (req, res) => {
     const userId = req.session.user.id;
     const receiverId = req.params.receiverId;
 
@@ -140,11 +136,7 @@ router.get('/chat/messages/:receiverId?', (req, res) => {
 });
 
 // Contar mensagens não lidas
-router.get('/chat/unread-count', (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ success: false, message: 'Não autorizado' });
-    }
-
+router.get('/chat/unread-count', requireAuth, (req, res) => {
     const userId = req.session.user.id;
 
     const query = 'SELECT COUNT(*) as count FROM messages WHERE receiver_id = ? AND read = 0';
@@ -155,7 +147,7 @@ router.get('/chat/unread-count', (req, res) => {
             return res.status(500).json({ success: false, message: 'Erro ao contar mensagens' });
         }
 
-        res.json({ success: true, count: result.count });
+        res.json({ success: true, count: result ? result.count : 0 });
     });
 });
 
