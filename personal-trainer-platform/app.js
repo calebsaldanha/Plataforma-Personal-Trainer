@@ -79,5 +79,7 @@ if (require.main === module) {
     console.log('📚 Artigos: http://localhost:' + PORT + '/articles');
   });
 }
+// ... após as outras rotas
+app.use('/', require('./test-routes')); // Adicione esta linha
 
 module.exports = app;
