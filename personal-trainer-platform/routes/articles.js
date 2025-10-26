@@ -2,6 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../database/db');
 
+// Função auxiliar para renderizar erro
+const renderError = (res, message, user = null) => {
+  return res.status(500).render('error', { 
+    message: message,
+    user: user,
+    isAuthenticated: !!user
+  });
+};
+
 // Listar artigos
 router.get('/articles', (req, res) => {
     const query = `
@@ -14,11 +23,7 @@ router.get('/articles', (req, res) => {
     db.all(query, [], (err, articles) => {
         if (err) {
             console.error('Erro ao buscar artigos:', err);
-            return res.status(500).render('error', { 
-                message: 'Erro ao carregar artigos',
-                user: req.session ? req.session.user : null,
-                isAuthenticated: !!(req.session && req.session.user)
-            });
+            return renderError(res, 'Erro ao carregar artigos', req.session ? req.session.user : null);
         }
 
         res.render('pages/articles', {
@@ -34,6 +39,15 @@ router.get('/articles', (req, res) => {
 router.get('/article/:id', (req, res) => {
     const articleId = req.params.id;
 
+    // Validar ID
+    if (!articleId || isNaN(articleId)) {
+        return res.status(400).render('error', { 
+            message: 'ID do artigo inválido',
+            user: req.session ? req.session.user : null,
+            isAuthenticated: !!(req.session && req.session.user)
+        });
+    }
+
     const query = `
         SELECT a.*, u.name as author_name 
         FROM articles a 
@@ -44,11 +58,7 @@ router.get('/article/:id', (req, res) => {
     db.get(query, [articleId], (err, article) => {
         if (err) {
             console.error('Erro ao buscar artigo:', err);
-            return res.status(500).render('error', { 
-                message: 'Erro ao carregar artigo',
-                user: req.session ? req.session.user : null,
-                isAuthenticated: !!(req.session && req.session.user)
-            });
+            return renderError(res, 'Erro ao carregar artigo', req.session ? req.session.user : null);
         }
 
         if (!article) {
@@ -128,11 +138,7 @@ router.get('/articles/category/:category', (req, res) => {
     db.all(query, [category], (err, articles) => {
         if (err) {
             console.error('Erro ao buscar artigos por categoria:', err);
-            return res.status(500).render('error', { 
-                message: 'Erro ao carregar artigos',
-                user: req.session ? req.session.user : null,
-                isAuthenticated: !!(req.session && req.session.user)
-            });
+            return renderError(res, 'Erro ao carregar artigos', req.session ? req.session.user : null);
         }
 
         res.render('pages/articles', {
