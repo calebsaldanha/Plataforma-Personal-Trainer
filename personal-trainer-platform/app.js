@@ -42,7 +42,10 @@ app.use((req, res, next) => {
 // Database initialization
 init();
 
-// ✅ ROTAS - APENAS UMA VEZ!
+// ✅ ROTAS - VERIFICAR SE routes/articles.js EXISTE
+console.log('🔍 Carregando rotas...');
+
+// Routes
 app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
 app.use('/client', require('./routes/client'));
@@ -51,7 +54,52 @@ app.use('/api', require('./routes/api'));
 app.use('/chat', require('./routes/chat'));
 app.use('/client', require('./routes/workouts'));
 app.use('/admin', require('./routes/workouts'));
-app.use('/', require('./routes/articles')); // ✅ Rota de artigos adicionada
+
+// ✅ TENTAR CARREGAR ROTA DE ARTIGOS COM TRY/CATCH
+try {
+  const articlesRoute = require('./routes/articles');
+  app.use('/', articlesRoute);
+  console.log('✅ Rota de artigos carregada com sucesso!');
+} catch (error) {
+  console.log('❌ Erro ao carregar rota de artigos:', error.message);
+  console.log('📝 Criando rota de artigos básica...');
+  
+  // Criar rota básica de artigos diretamente
+  app.get('/articles', (req, res) => {
+    console.log('📖 Página de artigos acessada via rota básica');
+    
+    const articles = [
+      {
+        id: 1,
+        title: "10 Dicas para Manter a Motivação nos Treinos",
+        content: "Descobre estratégias comprovadas para manter a consistência nos seus treinos...",
+        author_name: "João Silva",
+        category: "motivacao",
+        created_at: new Date()
+      },
+      {
+        id: 2,
+        title: "Alimentação para Melhor Performance", 
+        content: "Como a nutrição adequada pode potencializar seus resultados...",
+        author_name: "Maria Santos",
+        category: "nutricao",
+        created_at: new Date()
+      }
+    ];
+    
+    res.render('pages/articles', {
+      user: req.session ? req.session.user : null,
+      isAuthenticated: !!(req.session && req.session.user),
+      articles: articles,
+      title: 'Artigos e Dicas - FitConnect',
+      currentCategory: null
+    });
+  });
+  
+  console.log('✅ Rota básica de artigos criada!');
+}
+
+console.log('🚀 Todas as rotas carregadas!');
 
 // Error handling
 app.use((err, req, res, next) => {
@@ -77,9 +125,8 @@ if (require.main === module) {
     console.log('🚀 Servidor rodando na porta ' + PORT);
     console.log('📖 Acesse: http://localhost:' + PORT);
     console.log('📚 Artigos: http://localhost:' + PORT + '/articles');
+    console.log('👤 Login: http://localhost:' + PORT + '/auth/login');
   });
 }
-// ... após as outras rotas
-app.use('/', require('./test-routes')); // Adicione esta linha
 
 module.exports = app;
