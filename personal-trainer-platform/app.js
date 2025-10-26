@@ -12,10 +12,6 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/chat', require('./routes/chat'));
-app.use('/client', require('./routes/workouts'));
-app.use('/admin', require('./routes/workouts'));
-app.use('/', require('./routes/articles'));
 
 // Session configuration
 app.use(session({
@@ -44,30 +40,36 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
 app.use('/client', require('./routes/client'));
 app.use('/admin', require('./routes/admin'));
 app.use('/api', require('./routes/api'));
+app.use('/chat', require('./routes/chat'));
+app.use('/client', require('./routes/workouts'));
+app.use('/admin', require('./routes/workouts'));
+app.use('/', require('./routes/articles'));
 
 // Database initialization
 init();
 
-// Error handling
+// Error handling - CORRIGIDO
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Erro na aplicação:', err.stack);
   res.status(500).render('error', { 
-    message: 'Algo deu errado!',
-    error: process.env.NODE_ENV === 'production' ? {} : err
+    message: 'Algo deu errado! Tente novamente.',
+    user: req.session ? req.session.user : null,
+    isAuthenticated: !!(req.session && req.session.user)
   });
 });
 
-// 404 handling
+// 404 handling - CORRIGIDO
 app.use((req, res) => {
   res.status(404).render('error', { 
-    message: 'Página não encontrada' 
+    message: 'Página não encontrada',
+    user: req.session ? req.session.user : null,
+    isAuthenticated: !!(req.session && req.session.user)
   });
 });
 
