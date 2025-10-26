@@ -54,6 +54,20 @@ app.use('/', require('./routes/articles'));
 // Database initialization
 init();
 
+// Routes - VERIFICAR SE ESTÁ CORRETO
+app.use('/', require('./routes/index'));
+app.use('/auth', require('./routes/auth'));
+app.use('/client', require('./routes/client'));
+app.use('/admin', require('./routes/admin'));
+app.use('/api', require('./routes/api'));
+app.use('/chat', require('./routes/chat'));
+app.use('/client', require('./routes/workouts'));
+app.use('/admin', require('./routes/workouts'));
+
+// ✅ IMPORTANTE: Adicionar rota de artigos
+app.use('/', require('./routes/articles'));
+
+
 // Error handling - CORRIGIDO
 app.use((err, req, res, next) => {
   console.error('Erro na aplicação:', err.stack);
