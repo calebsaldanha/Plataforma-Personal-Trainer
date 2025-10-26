@@ -11,7 +11,7 @@ const renderError = (res, message, user = null) => {
   });
 };
 
-// Listar artigos
+// Listar artigos - ATUALIZADO
 router.get('/articles', (req, res) => {
     const query = `
         SELECT a.*, u.name as author_name 
@@ -23,14 +23,15 @@ router.get('/articles', (req, res) => {
     db.all(query, [], (err, articles) => {
         if (err) {
             console.error('Erro ao buscar artigos:', err);
-            return renderError(res, 'Erro ao carregar artigos', req.session ? req.session.user : null);
+            return res.status(500).render('error', { message: 'Erro ao carregar artigos' });
         }
 
         res.render('pages/articles', {
             user: req.session ? req.session.user : null,
             isAuthenticated: !!(req.session && req.session.user),
             articles: articles || [],
-            title: 'Artigos e Dicas - FitConnect'
+            title: 'Artigos e Dicas - FitConnect',
+            currentCategory: null
         });
     });
 });
