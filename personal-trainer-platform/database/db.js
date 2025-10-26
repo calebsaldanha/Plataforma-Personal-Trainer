@@ -82,9 +82,6 @@ const init = () => {
     ')');
 
     console.log('✅ Banco de dados inicializado com sucesso!');
-    
-    // Popular com dados de teste (executar seed separadamente)
-    console.log('💡 Execute "node database/seed.js" para popular com dados de teste');
 };
 
 module.exports = { db, init };
