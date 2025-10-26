@@ -10,15 +10,6 @@ router.get('/', (req, res) => {
     });
 });
 
-// Página de artigos
-router.get('/articles', (req, res) => {
-    res.render('pages/articles-content', {
-        user: req.session ? req.session.user : null,
-        isAuthenticated: !!(req.session && req.session.user),
-        title: 'Artigos e Dicas - FitConnect'
-    });
-});
-
 // Página sobre
 router.get('/about', (req, res) => {
     res.render('pages/about', {
