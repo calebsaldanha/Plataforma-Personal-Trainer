@@ -1,12 +1,93 @@
-<%- include('partials/header', { 
-    title: 'Erro - FitConnect',
-    bodyClass: ''
-}) %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Erro - FitConnect' %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/fixes.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Simplificado para páginas de erro -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <h2>FitConnect</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/articles" class="nav-link">Artigos</a>
+                    </li>
+                    <% if (typeof isAuthenticated !== 'undefined' && isAuthenticated) { %>
+                        <li class="nav-item">
+                            <span class="nav-link">Olá, <%= user.name %>!</span>
+                        </li>
+                        <li class="nav-item">
+                            <form action="/auth/logout" method="POST" class="logout-form">
+                                <button type="submit" class="nav-link login-btn">Sair</button>
+                            </form>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a href="/auth/login" class="nav-link login-btn">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/auth/register" class="nav-link register-btn">Cadastre-se</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </nav>
+    </header>
 
-<div class=\"container\" style=\"padding-top: 120px; text-align: center;\">
-    <h1>Oops! Algo deu errado</h1>
-    <p><%= message %></p>
-    <a href=\"/\" class=\"btn btn-primary\">Voltar para a página inicial</a>
-</div>
+    <main class="main-content">
+        <div class="container" style="padding-top: 120px; text-align: center; min-height: 60vh;">
+            <h1>Oops! Algo deu errado</h1>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem;"><%= message %></p>
+            <a href="/" class="btn btn-primary">Voltar para a página inicial</a>
+            
+            <% if (error && Object.keys(error).length > 0) { %>
+                <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; text-align: left;">
+                    <h3>Detalhes do erro:</h3>
+                    <pre style="white-space: pre-wrap; font-family: monospace;"><%= JSON.stringify(error, null, 2) %></pre>
+                </div>
+            <% } %>
+        </div>
+    </main>
 
-<%- include('partials/footer') %>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>FitConnect</h3>
+                    <p>Transformando vidas através do treinamento personalizado.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="/">Início</a></li>
+                        <li><a href="/articles">Artigos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li>contato@fitconnect.com</li>
+                        <li>(11) 99999-9999</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FitConnect. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
