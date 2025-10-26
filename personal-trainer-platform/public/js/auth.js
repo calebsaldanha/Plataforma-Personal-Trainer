@@ -1,10 +1,59 @@
-// Validação de formulários de autenticação
+// Validação de formulários de autenticação - VERSÃO CORRIGIDA
 document.addEventListener('DOMContentLoaded', function() {
-    const registerForm = document.querySelector('form[action="/auth/register"]');
+    console.log('🔐 Script de auth carregado');
+
     const loginForm = document.querySelector('form[action="/auth/login"]');
+    const registerForm = document.querySelector('form[action="/auth/register"]');
+
+    // Validação do formulário de login
+    if (loginForm) {
+        console.log('✅ Formulário de login encontrado');
+        
+        loginForm.addEventListener('submit', function(e) {
+            console.log('🚀 Formulário de login submetido');
+            
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+
+            console.log('📧 Email:', email.value);
+            console.log('🔑 Senha:', password.value ? '***' : 'vazia');
+
+            if (!email.value || !password.value) {
+                console.log('❌ Campos vazios detectados');
+                e.preventDefault();
+                showError('Por favor, preencha todos os campos');
+                return;
+            }
+
+            console.log('✅ Formulário válido, enviando...');
+            
+            // Remover qualquer loading anterior
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Entrando...';
+            submitBtn.disabled = true;
+        });
+
+        // Adicionar evento de input para debug
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                console.log('📧 Email digitado:', this.value);
+            });
+        }
+        
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                console.log('🔑 Senha digitada:', this.value ? '***' : 'vazia');
+            });
+        }
+    }
 
     // Validação do formulário de registro
     if (registerForm) {
+        console.log('✅ Formulário de registro encontrado');
+        
         registerForm.addEventListener('submit', function(e) {
             const password = document.getElementById('password');
             const confirmPassword = document.getElementById('confirmPassword');
@@ -21,55 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
         });
-
-        // Validação em tempo real
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-
-        if (passwordInput && confirmPasswordInput) {
-            confirmPasswordInput.addEventListener('input', function() {
-                if (passwordInput.value !== confirmPasswordInput.value) {
-                    confirmPasswordInput.style.borderColor = '#ef4444';
-                    showFieldError(confirmPasswordInput, 'As senhas não coincidem');
-                } else {
-                    confirmPasswordInput.style.borderColor = '#10b981';
-                    clearFieldError(confirmPasswordInput);
-                }
-            });
-
-            passwordInput.addEventListener('input', function() {
-                if (this.value.length < 6) {
-                    this.style.borderColor = '#f59e0b';
-                    showFieldError(this, 'A senha deve ter pelo menos 6 caracteres');
-                } else {
-                    this.style.borderColor = '#10b981';
-                    clearFieldError(this);
-                    
-                    // Revalidar confirmação de senha
-                    if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
-                        confirmPasswordInput.style.borderColor = '#ef4444';
-                        showFieldError(confirmPasswordInput, 'As senhas não coincidem');
-                    }
-                }
-            });
-        }
-    }
-
-    // Validação do formulário de login
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            const email = document.getElementById('email');
-            const password = document.getElementById('password');
-
-            if (!email.value || !password.value) {
-                e.preventDefault();
-                showError('Por favor, preencha todos os campos');
-                return;
-            }
-        });
     }
 
     function showError(message) {
+        console.log('❌ Erro:', message);
+        
         // Remove alertas existentes
         const existingAlert = document.querySelector('.alert-error');
         if (existingAlert) {
@@ -90,77 +95,28 @@ document.addEventListener('DOMContentLoaded', function() {
         alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function showFieldError(field, message) {
-        clearFieldError(field);
-        
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'field-error';
-        errorDiv.style.color = '#ef4444';
-        errorDiv.style.fontSize = '0.8rem';
-        errorDiv.style.marginTop = '0.25rem';
-        errorDiv.textContent = message;
-        
-        field.parentNode.appendChild(errorDiv);
-    }
-
-    function clearFieldError(field) {
-        const existingError = field.parentNode.querySelector('.field-error');
-        if (existingError) {
-            existingError.remove();
-        }
-    }
-
-    // Animação para formulários de auth
-    const authCard = document.querySelector('.auth-card');
-    if (authCard) {
-        authCard.style.opacity = '0';
-        authCard.style.transform = 'translateY(20px)';
-        authCard.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        
-        setTimeout(() => {
-            authCard.style.opacity = '1';
-            authCard.style.transform = 'translateY(0)';
-        }, 100);
-    }
-
-    // Foco automático no primeiro campo
-    const firstInput = document.querySelector('form input[type="text"], form input[type="email"]');
-    if (firstInput) {
-        setTimeout(() => {
-            firstInput.focus();
-        }, 500);
-    }
-
-    // Toggle password visibility
-    const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-    togglePasswordButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const passwordInput = this.previousElementSibling;
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            
-            // Alterar ícone
-            this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
-        });
-    });
+    // Testar se o script está carregando
+    console.log('🎯 Script de auth totalmente carregado');
 });
 
-// Função para mostrar notificações (compatibilidade)
+// Função global para mostrar notificações
 function showNotification(message, type = 'info') {
+    console.log('💬 Notificação:', message);
+    
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
     
-    Object.assign(notification.style, {
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        padding: '1rem 1.5rem',
-        borderRadius: '8px',
-        color: 'white',
-        zIndex: '1000',
-        animation: 'slideIn 0.3s ease'
-    });
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    `;
     
     if (type === 'success') {
         notification.style.background = '#10b981';
