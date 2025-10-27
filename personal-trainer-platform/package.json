@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "build": "npm install"
+    "build": "npm install",
+    "reset-db": "node database/reset.js",
+    "check-users": "node check-users.js",
+    "fix-passwords": "node fix-passwords.js",
+    "seed": "node database/seed.js"
   },
   "dependencies": {
     "express": "^4.18.2",
