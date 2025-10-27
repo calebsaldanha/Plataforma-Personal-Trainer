@@ -1,0 +1,315 @@
+<%- include('../partials/header', { 
+    title: 'Detalhes do Cliente - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect Admin</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/clients" class="nav-item active">
+                <span>👥</span> Clientes
+            </a>
+            <a href="/admin/workouts/create" class="nav-item">
+                <span>💪</span> Criar Treino
+            </a>
+            <a href="/articles/create" class="nav-item">
+                <span>📝</span> Criar Artigo
+            </a>
+            <a href="/admin/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="section-header">
+            <div>
+                <h1><%= client.name %></h1>
+                <p>Detalhes completos do cliente</p>
+            </div>
+            <a href="/admin/clients" class="btn btn-outline">← Voltar</a>
+        </div>
+
+        <div class="client-details-grid">
+            <!-- Informações Pessoais -->
+            <div class="section">
+                <h2>Informações Pessoais</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Email:</strong>
+                        <span><%= client.email %></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Idade:</strong>
+                        <span><%= client.age || 'N/D' %> anos</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Gênero:</strong>
+                        <span>
+                            <%= client.gender === 'male' ? 'Masculino' : 
+                                client.gender === 'female' ? 'Feminino' : 
+                                client.gender || 'N/D' %>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Peso:</strong>
+                        <span><%= client.weight ? client.weight + ' kg' : 'N/D' %></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Altura:</strong>
+                        <span><%= client.height ? client.height + ' cm' : 'N/D' %></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Cadastrado em:</strong>
+                        <span><%= new Date(client.created_at).toLocaleDateString('pt-BR') %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objetivos e Condicionamento -->
+            <div class="section">
+                <h2>Objetivos e Condicionamento</h2>
+                <div class="info-grid">
+                    <div class="info-item full-width">
+                        <strong>Objetivos:</strong>
+                        <span><%= client.goals || 'N/D' %></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Nível:</strong>
+                        <span>
+                            <%= client.fitness_level === 'beginner' ? 'Iniciante' :
+                                client.fitness_level === 'intermediate' ? 'Intermediário' :
+                                client.fitness_level === 'advanced' ? 'Avançado' : 'N/D' %>
+                        </span>
+                    </div>
+                    <div class="info-item full-width">
+                        <strong>Experiência Anterior:</strong>
+                        <span><%= client.experience || 'N/D' %></span>
+                    </div>
+                    <div class="info-item full-width">
+                        <strong>Condições Médicas:</strong>
+                        <span><%= client.medical_conditions || 'Nenhuma informada' %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treinos do Cliente -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Treinos Atribuídos</h2>
+                    <a href="/admin/workouts/create?client_id=<%= client.id %>" class="btn btn-primary">
+                        Criar Novo Treino
+                    </a>
+                </div>
+
+                <% if (workouts && workouts.length > 0) { %>
+                    <div class="workouts-list">
+                        <% workouts.forEach(workout => { %>
+                            <div class="workout-item">
+                                <div class="workout-header">
+                                    <h3><%= workout.title %></h3>
+                                    <div class="workout-stats">
+                                        <span class="stat">Check-ins: <%= workout.total_checkins || 0 %></span>
+                                        <span class="stat">Concluídos: <%= workout.completed_checkins || 0 %></span>
+                                    </div>
+                                </div>
+                                <% if (workout.description) { %>
+                                    <p class="workout-desc"><%= workout.description %></p>
+                                <% } %>
+                                <div class="workout-meta">
+                                    <span>Criado em: <%= new Date(workout.created_at).toLocaleDateString('pt-BR') %></span>
+                                </div>
+                                <div class="workout-actions">
+                                    <a href="/workout/<%= workout.id %>" class="btn btn-primary btn-sm">
+                                        Ver Detalhes
+                                    </a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <div class="empty-icon">💪</div>
+                        <h3>Nenhum treino criado</h3>
+                        <p>Este cliente ainda não possui treinos atribuídos.</p>
+                        <a href="/admin/workouts/create?client_id=<%= client.id %>" class="btn btn-primary">
+                            Criar Primeiro Treino
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="section">
+                <h2>Ações Rápidas</h2>
+                <div class="quick-actions">
+                    <a href="/admin/chat?user_id=<%= client.id %>" class="quick-action-card">
+                        <div class="action-icon">💬</div>
+                        <h3>Enviar Mensagem</h3>
+                        <p>Iniciar conversa com o cliente</p>
+                    </a>
+                    <a href="/admin/workouts/create?client_id=<%= client.id %>" class="quick-action-card">
+                        <div class="action-icon">💪</div>
+                        <h3>Criar Treino</h3>
+                        <p>Desenvolver plano personalizado</p>
+                    </a>
+                    <a href="mailto:<%= client.email %>" class="quick-action-card">
+                        <div class="action-icon">📧</div>
+                        <h3>Enviar Email</h3>
+                        <p>Contato direto por email</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+.client-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.info-item strong {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.info-item span {
+    color: #343a40;
+    font-weight: 500;
+}
+
+.workouts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.workout-item {
+    background: white;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.workout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.workout-header h3 {
+    margin: 0;
+    color: #343a40;
+}
+
+.workout-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.workout-stats .stat {
+    background: #f8f9fa;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.workout-desc {
+    color: #6c757d;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.workout-meta {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.workout-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.quick-action-card {
+    display: block;
+    background: white;
+    padding: 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.quick-action-card:hover {
+    border-color: #4361ee;
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #343a40;
+    font-size: 1rem;
+}
+
+.quick-action-card p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+</style>
+
+<%- include('../partials/footer') %>
