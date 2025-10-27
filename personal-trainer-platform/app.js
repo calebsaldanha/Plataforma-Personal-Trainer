@@ -55,7 +55,7 @@ app.use('/workouts', require('./routes/workouts')); // ← ÚNICA INSTÂNCIA
 init();
 
 // Seed data (apenas em desenvolvimento)
-if (process.env.NODE_ENV !== 'production') {
+/*if (process.env.NODE_ENV !== 'production') {
   setTimeout(() => {
     seedData().then(() => {
       console.log('✅ Dados de seed carregados com sucesso');
@@ -63,7 +63,7 @@ if (process.env.NODE_ENV !== 'production') {
       console.error('❌ Erro ao carregar seed:', err);
     });
   }, 2000);
-}
+}*/
 
 // Error handling
 app.use((err, req, res, next) => {
