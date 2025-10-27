@@ -1,0 +1,358 @@
+<%- include('../partials/header', { 
+    title: 'Meu Perfil - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/client/dashboard" class="nav-item">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/client/workouts" class="nav-item">
+                <span>💪</span> Meus Treinos
+            </a>
+            <a href="/client/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+            <a href="/client/progress" class="nav-item">
+                <span>📈</span> Meu Progresso
+            </a>
+            <a href="/client/profile" class="nav-item active">
+                <span>👤</span> Meu Perfil
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="section-header">
+            <h1>Meu Perfil</h1>
+            <p>Gerencie suas informações pessoais</p>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Informações da Conta -->
+            <div class="section">
+                <h2>Informações da Conta</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Nome:</strong>
+                        <span><%= user.name %></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Email:</strong>
+                        <span><%= user.email %></span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Tipo de Conta:</strong>
+                        <span>Cliente</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Membro desde:</strong>
+                        <span><%= new Date(profile.created_at).toLocaleDateString('pt-BR') %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações Pessoais -->
+            <div class="section">
+                <h2>Informações Pessoais</h2>
+                <% if (profile.age) { %>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>Idade:</strong>
+                            <span><%= profile.age %> anos</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Gênero:</strong>
+                            <span>
+                                <%= profile.gender === 'male' ? 'Masculino' : 
+                                    profile.gender === 'female' ? 'Feminino' : 
+                                    profile.gender %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Peso:</strong>
+                            <span><%= profile.weight %> kg</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Altura:</strong>
+                            <span><%= profile.height %> cm</span>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>Complete seu perfil para ver suas informações pessoais.</p>
+                        <a href="/client/initial-form" class="btn btn-primary">Completar Perfil</a>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Objetivos e Preferências -->
+            <div class="section">
+                <h2>Objetivos e Preferências</h2>
+                <% if (profile.goals) { %>
+                    <div class="info-grid">
+                        <div class="info-item full-width">
+                            <strong>Objetivos:</strong>
+                            <span><%= profile.goals %></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Nível:</strong>
+                            <span>
+                                <%= profile.fitness_level === 'beginner' ? 'Iniciante' :
+                                    profile.fitness_level === 'intermediate' ? 'Intermediário' :
+                                    profile.fitness_level === 'advanced' ? 'Avançado' : profile.fitness_level %>
+                            </span>
+                        </div>
+                        <% if (profile.experience) { %>
+                            <div class="info-item full-width">
+                                <strong>Experiência Anterior:</strong>
+                                <span><%= profile.experience %></span>
+                            </div>
+                        <% } %>
+                        <% if (profile.medical_conditions) { %>
+                            <div class="info-item full-width">
+                                <strong>Condições Médicas:</strong>
+                                <span><%= profile.medical_conditions %></span>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <p>Defina seus objetivos para treinos personalizados.</p>
+                        <a href="/client/initial-form" class="btn btn-primary">Definir Objetivos</a>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Estatísticas do Perfil -->
+            <div class="section">
+                <h2>Estatísticas</h2>
+                <div class="stats-grid">
+                    <div class="stat-card small">
+                        <div class="stat-icon">💪</div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Treinos Realizados</p>
+                        </div>
+                    </div>
+                    <div class="stat-card small">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <h3>8</h3>
+                            <p>Check-ins</p>
+                        </div>
+                    </div>
+                    <div class="stat-card small">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <h3>45</h3>
+                            <p>Dias Ativo</p>
+                        </div>
+                    </div>
+                    <div class="stat-card small">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <h3>4.2</h3>
+                            <p>Avaliação Média</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações do Perfil -->
+            <div class="section">
+                <h2>Ações</h2>
+                <div class="action-buttons">
+                    <a href="/client/initial-form" class="btn btn-outline">
+                        ✏️ Editar Perfil
+                    </a>
+                    <button class="btn btn-outline" onclick="showResetPasswordModal()">
+                        🔒 Alterar Senha
+                    </button>
+                    <button class="btn btn-outline" onclick="exportData()">
+                        📥 Exportar Dados
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal de Alteração de Senha -->
+<div id="resetPasswordModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Alterar Senha</h3>
+            <span class="close" onclick="closeResetPasswordModal()">&times;</span>
+        </div>
+        <form id="resetPasswordForm">
+            <div class="form-group">
+                <label for="currentPassword">Senha Atual</label>
+                <input type="password" id="currentPassword" name="currentPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">Nova Senha</label>
+                <input type="password" id="newPassword" name="newPassword" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label for="confirmNewPassword">Confirmar Nova Senha</label>
+                <input type="password" id="confirmNewPassword" name="confirmNewPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Alterar Senha</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function showResetPasswordModal() {
+    document.getElementById('resetPasswordModal').style.display = 'block';
+}
+
+function closeResetPasswordModal() {
+    document.getElementById('resetPasswordModal').style.display = 'none';
+}
+
+document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmNewPassword').value;
+    
+    if (newPassword !== confirmPassword) {
+        showNotification('As senhas não coincidem', 'error');
+        return;
+    }
+    
+    showNotification('Senha alterada com sucesso!', 'success');
+    closeResetPasswordModal();
+    this.reset();
+});
+
+function exportData() {
+    showNotification('Exportação iniciada! Em breve você receberá um email.', 'success');
+}
+
+// Fechar modal ao clicar fora
+window.addEventListener('click', function(e) {
+    const modal = document.getElementById('resetPasswordModal');
+    if (e.target === modal) {
+        closeResetPasswordModal();
+    }
+});
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+</script>
+
+<style>
+.profile-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.info-item strong {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.info-item span {
+    color: #343a40;
+    font-weight: 500;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card.small {
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-card.small .stat-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 0.5rem;
+}
+
+.stat-card.small .stat-info h3 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.stat-card.small .stat-info p {
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.empty-state p {
+    margin-bottom: 1rem;
+}
+</style>
+
+<%- include('../partials/footer') %>
