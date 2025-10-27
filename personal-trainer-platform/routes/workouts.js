@@ -105,14 +105,14 @@ router.get('/workout/:id', requireAuth, (req, res) => {
     });
 });
 
-// Criar treino (admin)
-router.get('/workouts/create', requireAuth, (req, res) => {
+// Criar treino (admin) - PÁGINA
+router.get('/create', requireAuth, (req, res) => {
     if (req.session.user.role !== 'trainer') {
         return res.redirect('/client/dashboard');
     }
 
     // Buscar clientes
-    const clientsQuery = 'SELECT id, name FROM users WHERE role = "client"';
+    const clientsQuery = 'SELECT id, name, email FROM users WHERE role = "client"';
     
     db.all(clientsQuery, [], (err, clients) => {
         if (err) {
@@ -127,8 +127,8 @@ router.get('/workouts/create', requireAuth, (req, res) => {
     });
 });
 
-// Salvar treino
-router.post('/workouts/create', requireAuth, (req, res) => {
+// Salvar treino - API
+router.post('/create', requireAuth, (req, res) => {
     if (req.session.user.role !== 'trainer') {
         return res.status(401).json({ success: false, message: 'Não autorizado' });
     }
@@ -169,18 +169,27 @@ router.post('/workout/:id/checkin', requireAuth, (req, res) => {
     const clientId = req.session.user.id;
     const { completed, notes, rating } = req.body;
 
-    const query = `
-        INSERT INTO workout_checkins (workout_id, client_id, completed, notes, rating) 
-        VALUES (?, ?, ?, ?, ?)
-    `;
-
-    db.run(query, [workoutId, clientId, completed ? 1 : 0, notes, rating || null], function(err) {
-        if (err) {
-            console.error('Erro ao registrar check-in:', err);
-            return res.status(500).json({ success: false, message: 'Erro ao registrar check-in' });
+    // Verificar se o treino pertence ao cliente
+    const checkQuery = 'SELECT id FROM workouts WHERE id = ? AND client_id = ?';
+    
+    db.get(checkQuery, [workoutId, clientId], (err, workout) => {
+        if (err || !workout) {
+            return res.status(404).json({ success: false, message: 'Treino não encontrado' });
         }
 
-        res.json({ success: true, message: 'Check-in registrado com sucesso' });
+        const insertQuery = `
+            INSERT INTO workout_checkins (workout_id, client_id, completed, notes, rating) 
+            VALUES (?, ?, ?, ?, ?)
+        `;
+
+        db.run(insertQuery, [workoutId, clientId, completed ? 1 : 0, notes, rating || null], function(err) {
+            if (err) {
+                console.error('Erro ao registrar check-in:', err);
+                return res.status(500).json({ success: false, message: 'Erro ao registrar check-in' });
+            }
+
+            res.json({ success: true, message: 'Check-in registrado com sucesso' });
+        });
     });
 });
 
