@@ -4,7 +4,7 @@ const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const bodyParser = require('body-parser');
 const { db, init } = require('./database/db');
-const { seedData } = require('./database/seed'); // ← ADICIONAR ESTA LINHA
+const { seedData } = require('./database/seed');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,16 +41,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Routes - CORRIGIDO: Removidas rotas duplicadas
 app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
 app.use('/client', require('./routes/client'));
 app.use('/admin', require('./routes/admin'));
 app.use('/api', require('./routes/api'));
 app.use('/chat', require('./routes/chat'));
-app.use('/client', require('./routes/workouts'));
-app.use('/admin', require('./routes/workouts'));
-app.use('/', require('./routes/articles'));
+app.use('/articles', require('./routes/articles'));
+app.use('/workouts', require('./routes/workouts')); // ← ÚNICA INSTÂNCIA
 
 // Database initialization
 init();
@@ -58,8 +57,12 @@ init();
 // Seed data (apenas em desenvolvimento)
 if (process.env.NODE_ENV !== 'production') {
   setTimeout(() => {
-    seedData();
-  }, 1000);
+    seedData().then(() => {
+      console.log('✅ Dados de seed carregados com sucesso');
+    }).catch(err => {
+      console.error('❌ Erro ao carregar seed:', err);
+    });
+  }, 2000);
 }
 
 // Error handling
@@ -80,8 +83,9 @@ app.use((req, res) => {
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log('Servidor rodando na porta ' + PORT);
-    console.log('Acesse: http://localhost:' + PORT);
+    console.log('🚀 Servidor rodando na porta ' + PORT);
+    console.log('📧 Acesse: http://localhost:' + PORT);
+    console.log('🔐 Login de teste: http://localhost:' + PORT + '/login-simple');
   });
 }
 
