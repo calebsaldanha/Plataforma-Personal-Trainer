@@ -22,7 +22,7 @@ router.get('/articles', (req, res) => {
             isAuthenticated: !!(req.session && req.session.user),
             articles: articles || [],
             title: 'Artigos e Dicas - FitConnect',
-            currentCategory: null // ← ADICIONAR ESTA LINHA
+            currentCategory: null
         });
     });
 });
@@ -57,8 +57,8 @@ router.get('/article/:id', (req, res) => {
     });
 });
 
-// Criar artigo (admin)
-router.get('/articles/create', (req, res) => {
+// Criar artigo (admin) - PÁGINA
+router.get('/create', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'trainer') {
         return res.redirect('/auth/login');
     }
@@ -69,8 +69,8 @@ router.get('/articles/create', (req, res) => {
     });
 });
 
-// Salvar artigo
-router.post('/articles/create', (req, res) => {
+// Salvar artigo - API
+router.post('/create', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'trainer') {
         return res.status(401).json({ success: false, message: 'Não autorizado' });
     }
@@ -87,7 +87,7 @@ router.post('/articles/create', (req, res) => {
         VALUES (?, ?, ?, ?)
     `;
 
-    db.run(query, [title, content, author_id, category], function(err) {
+    db.run(query, [title, content, author_id, category || 'geral'], function(err) {
         if (err) {
             console.error('Erro ao criar artigo:', err);
             return res.status(500).json({ success: false, message: 'Erro ao criar artigo' });
@@ -102,7 +102,7 @@ router.post('/articles/create', (req, res) => {
 });
 
 // Artigos por categoria
-router.get('/articles/category/:category', (req, res) => {
+router.get('/category/:category', (req, res) => {
     const category = req.params.category;
 
     const query = `
@@ -123,10 +123,22 @@ router.get('/articles/category/:category', (req, res) => {
             user: req.session ? req.session.user : null,
             isAuthenticated: !!(req.session && req.session.user),
             articles: articles || [],
-            title: `Artigos de ${category} - FitConnect`,
-            currentCategory: category // ← JÁ ESTAVA CORRETO AQUI
+            title: `Artigos de ${getCategoryName(category)} - FitConnect`,
+            currentCategory: category
         });
     });
 });
+
+// Helper para nome da categoria
+function getCategoryName(category) {
+    const categories = {
+        'treinamento': 'Treinamento',
+        'nutricao': 'Nutrição', 
+        'saude': 'Saúde',
+        'motivacao': 'Motivação',
+        'geral': 'Geral'
+    };
+    return categories[category] || 'Geral';
+}
 
 module.exports = router;
