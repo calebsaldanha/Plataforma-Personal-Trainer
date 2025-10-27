@@ -92,7 +92,7 @@ router.get('/clients', requireAdminAuth, (req, res) => {
             return res.status(500).render('error', { message: 'Erro ao carregar clientes' });
         }
 
-        res.render('pages/admin/clients', {
+        res.render('admin/clients', {
             user: req.session.user,
             clients: clients || []
         });
@@ -143,6 +143,41 @@ router.get('/clients/:id', requireAdminAuth, (req, res) => {
                 workouts: workouts
             });
         });
+    });
+});
+
+// Chat do admin
+router.get('/chat', requireAdminAuth, (req, res) => {
+    const trainerId = req.session.user.id;
+
+    // Buscar clientes para o chat
+    const clientsQuery = `
+        SELECT u.id, u.name, u.email 
+        FROM users u 
+        WHERE u.role = "client" 
+        ORDER BY u.name
+    `;
+
+    db.all(clientsQuery, [], (err, clients) => {
+        if (err) {
+            console.error('Erro ao buscar clientes para chat:', err);
+            clients = [];
+        }
+
+        res.render('pages/chat', {
+            user: req.session.user,
+            users: clients,
+            messages: [],
+            selectedUser: null
+        });
+    });
+});
+
+// Analytics (placeholder)
+router.get('/analytics', requireAdminAuth, (req, res) => {
+    res.render('pages/admin/analytics', {
+        user: req.session.user,
+        title: 'Analytics - FitConnect'
     });
 });
 
