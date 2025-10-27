@@ -3,7 +3,7 @@ const router = express.Router();
 const { db } = require('../database/db');
 
 // Listar artigos
-router.get('/articles', (req, res) => {
+router.get('/', (req, res) => {
     const query = `
         SELECT a.*, u.name as author_name 
         FROM articles a 
