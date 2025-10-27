@@ -127,7 +127,7 @@ router.get('/create', requireAuth, (req, res) => {
     });
 });
 
-// Salvar treino - API
+// Salvar treino - API (CORRIGIDO)
 router.post('/create', requireAuth, (req, res) => {
     if (req.session.user.role !== 'trainer') {
         return res.status(401).json({ success: false, message: 'Não autorizado' });
@@ -135,6 +135,9 @@ router.post('/create', requireAuth, (req, res) => {
 
     const { client_id, title, description, exercises } = req.body;
     const trainer_id = req.session.user.id;
+    
+    // Converte o array de exercícios para uma string JSON antes de salvar
+    const exercisesJSON = JSON.stringify(exercises);
 
     if (!client_id || !title) {
         return res.status(400).json({ success: false, message: 'Dados incompletos' });
@@ -145,7 +148,7 @@ router.post('/create', requireAuth, (req, res) => {
         VALUES (?, ?, ?, ?, ?)
     `;
 
-    db.run(query, [client_id, trainer_id, title, description, exercises], function(err) {
+    db.run(query, [client_id, trainer_id, title, description, exercisesJSON], function(err) {
         if (err) {
             console.error('Erro ao criar treino:', err);
             return res.status(500).json({ success: false, message: 'Erro ao criar treino' });
