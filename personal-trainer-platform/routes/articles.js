@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
 });
 
 // Ver artigo individual
-router.get('/article/:id', (req, res) => {
+router.get('/:id', (req, res) => {
     const articleId = req.params.id;
 
     const query = `
