@@ -196,7 +196,7 @@ async function makeRequest(url, options = {}) {
 }
 
 // Loading global para botões
-document.addEventListener('DOMContentLoaded', function() {
+/*document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         if (e.target.matches('.btn[type="submit"]') || e.target.closest('.btn[type="submit"]')) {
             const button = e.target.matches('.btn') ? e.target : e.target.closest('.btn');
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
+*/
 // Função para copiar texto para clipboard
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
