@@ -1,0 +1,149 @@
+<%- include('../partials/header', { 
+    title: 'Criar Artigo - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect Admin</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/clients" class="nav-item">
+                <span>👥</span> Clientes
+            </a>
+            <a href="/admin/workouts/create" class="nav-item">
+                <span>💪</span> Criar Treino
+            </a>
+            <a href="/articles/create" class="nav-item active">
+                <span>📝</span> Criar Artigo
+            </a>
+            <a href="/admin/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="section">
+            <div class="section-header">
+                <h1>Criar Novo Artigo</h1>
+                <p>Compartilhe conhecimento e dicas com seus clientes</p>
+            </div>
+
+            <form id="createArticleForm" class="dashboard-form">
+                <div class="form-group">
+                    <label for="title">Título do Artigo *</label>
+                    <input type="text" id="title" name="title" required 
+                           placeholder="Ex: 10 Dicas para Melhorar seu Treino">
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Categoria *</label>
+                    <select id="category" name="category" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="treinamento">🏋️ Treinamento</option>
+                        <option value="nutricao">🥗 Nutrição</option>
+                        <option value="saude">❤️ Saúde</option>
+                        <option value="motivacao">💪 Motivação</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="content">Conteúdo *</label>
+                    <textarea id="content" name="content" rows="12" required
+                              placeholder="Escreva o conteúdo do artigo aqui... Use quebras de linha para parágrafos."></textarea>
+                    <small style="color: #6c757d; font-size: 0.8rem;">
+                        Dica: Use quebras de linha (Enter) para separar parágrafos.
+                    </small>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/articles" class="btn btn-outline">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Publicar Artigo</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+document.getElementById('createArticleForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+
+    try {
+        submitBtn.textContent = 'Publicando...';
+        submitBtn.disabled = true;
+
+        const response = await fetch('/articles/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title: formData.get('title'),
+                content: formData.get('content'),
+                category: formData.get('category')
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Artigo publicado com sucesso!', 'success');
+            setTimeout(() => {
+                window.location.href = '/articles';
+            }, 1500);
+        } else {
+            showNotification(result.message || 'Erro ao publicar artigo', 'error');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao publicar artigo', 'error');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+</script>
+
+<%- include('../partials/footer') %>
