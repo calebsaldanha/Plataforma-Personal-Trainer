@@ -193,7 +193,7 @@ document.getElementById('createWorkoutForm').addEventListener('submit', async fu
                 client_id: formData.get('client_id'),
                 title: formData.get('title'),
                 description: formData.get('description'),
-                exercises: JSON.stringify(exercises)
+                exercises: exercises
             })
         });
 
