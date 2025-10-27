@@ -1,16 +1,16 @@
-// Validação de formulários de autenticação - VERSÃO CORRIGIDA
+// Validação de formulários de autenticação - VERSÃO CORRIGIDA E FUNCIONAL
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔐 Script de auth carregado');
+    console.log('🔐 Script de auth carregado - VERSÃO CORRIGIDA');
 
     const loginForm = document.querySelector('form[action="/auth/login"]');
     const registerForm = document.querySelector('form[action="/auth/register"]');
 
-    // Validação do formulário de login
+    // Validação do formulário de login - CORRIGIDO
     if (loginForm) {
         console.log('✅ Formulário de login encontrado');
         
         loginForm.addEventListener('submit', function(e) {
-            console.log('🚀 Formulário de login submetido');
+            console.log('🚀 Formulário de login submetido - SEM BLOQUEIO');
             
             const email = document.getElementById('email');
             const password = document.getElementById('password');
@@ -18,36 +18,28 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('📧 Email:', email.value);
             console.log('🔑 Senha:', password.value ? '***' : 'vazia');
 
+            // Apenas validação visual, NÃO prevenir envio
             if (!email.value || !password.value) {
-                console.log('❌ Campos vazios detectados');
-                e.preventDefault();
+                console.log('⚠️ Campos vazios detectados - apenas alerta visual');
                 showError('Por favor, preencha todos os campos');
+                e.preventDefault(); // Só prevenir se estiver realmente vazio
                 return;
             }
 
-            console.log('✅ Formulário válido, enviando...');
+            console.log('✅ Formulário válido, enviando normalmente...');
             
-            // Remover qualquer loading anterior
+            // Apenas feedback visual, não bloquear envio
             const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Entrando...';
             submitBtn.disabled = true;
-        });
 
-        // Adicionar evento de input para debug
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        
-        if (emailInput) {
-            emailInput.addEventListener('input', function() {
-                console.log('📧 Email digitado:', this.value);
-            });
-        }
-        
-        if (passwordInput) {
-            passwordInput.addEventListener('input', function() {
-                console.log('🔑 Senha digitada:', this.value ? '***' : 'vazia');
-            });
-        }
+            // Timeout de segurança para reativar botão
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
+        });
     }
 
     // Validação do formulário de registro
@@ -69,6 +61,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 showError('A senha deve ter pelo menos 6 caracteres');
                 return;
             }
+
+            // Loading visual
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Criando conta...';
+            submitBtn.disabled = true;
+
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
         });
     }
 
@@ -94,14 +97,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Scroll para o alerta
         alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-
-    // Testar se o script está carregando
-    console.log('🎯 Script de auth totalmente carregado');
 });
 
 // Função global para mostrar notificações
 function showNotification(message, type = 'info') {
     console.log('💬 Notificação:', message);
+    
+    // Remove notificações existentes
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
     
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -116,6 +120,7 @@ function showNotification(message, type = 'info') {
         color: white;
         z-index: 1000;
         animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     `;
     
     if (type === 'success') {
