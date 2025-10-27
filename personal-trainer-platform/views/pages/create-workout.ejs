@@ -1,0 +1,261 @@
+<%- include('../partials/header', { 
+    title: 'Criar Treino - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect Admin</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/clients" class="nav-item">
+                <span>👥</span> Clientes
+            </a>
+            <a href="/admin/workouts/create" class="nav-item active">
+                <span>💪</span> Criar Treino
+            </a>
+            <a href="/articles/create" class="nav-item">
+                <span>📝</span> Criar Artigo
+            </a>
+            <a href="/admin/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="section">
+            <div class="section-header">
+                <h1>Criar Novo Treino</h1>
+                <p>Crie um treino personalizado para seu cliente</p>
+            </div>
+
+            <form id="createWorkoutForm" class="dashboard-form">
+                <div class="form-group">
+                    <label for="client_id">Cliente *</label>
+                    <select id="client_id" name="client_id" required>
+                        <option value="">Selecione um cliente</option>
+                        <% clients.forEach(client => { %>
+                            <option value="<%= client.id %>"><%= client.name %> - <%= client.email %></option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Título do Treino *</label>
+                    <input type="text" id="title" name="title" required 
+                           placeholder="Ex: Treino de Peito e Tríceps">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descrição</label>
+                    <textarea id="description" name="description" rows="3"
+                              placeholder="Descreva o objetivo deste treino..."></textarea>
+                </div>
+
+                <div class="exercises-section">
+                    <h3>Exercícios</h3>
+                    <div id="exercisesContainer">
+                        <div class="exercise-item" data-index="0">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nome do Exercício</label>
+                                    <input type="text" name="exercises[0][name]" 
+                                           placeholder="Ex: Supino Reto" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Séries x Repetições</label>
+                                    <input type="text" name="exercises[0][sets]" 
+                                           placeholder="Ex: 3x12" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Descrição/Instruções</label>
+                                <textarea name="exercises[0][description]" rows="2"
+                                          placeholder="Descreva a execução do exercício..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Tempo de Descanso</label>
+                                <input type="text" name="exercises[0][rest]" 
+                                       placeholder="Ex: 60 segundos">
+                            </div>
+                            <button type="button" class="btn btn-outline btn-sm remove-exercise" 
+                                    onclick="removeExercise(0)">Remover</button>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-outline" onclick="addExercise()">
+                        + Adicionar Exercício
+                    </button>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/admin/dashboard" class="btn btn-outline">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Criar Treino</button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+let exerciseCount = 1;
+
+function addExercise() {
+    const container = document.getElementById('exercisesContainer');
+    const exerciseHTML = `
+        <div class="exercise-item" data-index="${exerciseCount}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nome do Exercício</label>
+                    <input type="text" name="exercises[${exerciseCount}][name]" 
+                           placeholder="Ex: Agachamento Livre" required>
+                </div>
+                <div class="form-group">
+                    <label>Séries x Repetições</label>
+                    <input type="text" name="exercises[${exerciseCount}][sets]" 
+                           placeholder="Ex: 4x10" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Descrição/Instruções</label>
+                <textarea name="exercises[${exerciseCount}][description]" rows="2"
+                          placeholder="Descreva a execução do exercício..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Tempo de Descanso</label>
+                <input type="text" name="exercises[${exerciseCount}][rest]" 
+                       placeholder="Ex: 90 segundos">
+            </div>
+            <button type="button" class="btn btn-outline btn-sm remove-exercise" 
+                    onclick="removeExercise(${exerciseCount})">Remover</button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', exerciseHTML);
+    exerciseCount++;
+}
+
+function removeExercise(index) {
+    const exercise = document.querySelector(`.exercise-item[data-index="${index}"]`);
+    if (exercise && document.querySelectorAll('.exercise-item').length > 1) {
+        exercise.remove();
+    }
+}
+
+document.getElementById('createWorkoutForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+
+    // Coletar dados dos exercícios
+    const exercises = [];
+    const exerciseElements = document.querySelectorAll('.exercise-item');
+    
+    exerciseElements.forEach((exerciseEl, index) => {
+        const exerciseData = {
+            name: exerciseEl.querySelector('input[name="exercises[' + index + '][name]"]').value,
+            sets: exerciseEl.querySelector('input[name="exercises[' + index + '][sets]"]').value,
+            description: exerciseEl.querySelector('textarea[name="exercises[' + index + '][description]"]').value,
+            rest: exerciseEl.querySelector('input[name="exercises[' + index + '][rest]"]').value
+        };
+        exercises.push(exerciseData);
+    });
+
+    try {
+        submitBtn.textContent = 'Criando...';
+        submitBtn.disabled = true;
+
+        const response = await fetch('/workouts/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                client_id: formData.get('client_id'),
+                title: formData.get('title'),
+                description: formData.get('description'),
+                exercises: JSON.stringify(exercises)
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showNotification('Treino criado com sucesso!', 'success');
+            setTimeout(() => {
+                window.location.href = '/admin/dashboard';
+            }, 1500);
+        } else {
+            showNotification(result.message || 'Erro ao criar treino', 'error');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        showNotification('Erro ao criar treino', 'error');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+</script>
+
+<style>
+.exercises-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.exercise-item {
+    background: white;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.remove-exercise {
+    margin-top: 0.5rem;
+}
+</style>
+
+<%- include('../partials/footer') %>
