@@ -1,0 +1,441 @@
+<%- include('../partials/header', { 
+    title: 'Meu Progresso - FitConnect',
+    bodyClass: 'dashboard-body'
+}) %>
+
+<header class="dashboard-header">
+    <div class="dashboard-nav">
+        <div class="nav-brand">
+            <h2>FitConnect</h2>
+        </div>
+        <div class="nav-user">
+            <span>Olá, <%= user.name %>!</span>
+            <div class="user-menu">
+                <form action="/auth/logout" method="POST" class="logout-form">
+                    <button type="submit" class="btn btn-outline btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="dashboard-container">
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="/client/dashboard" class="nav-item">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/client/workouts" class="nav-item">
+                <span>💪</span> Meus Treinos
+            </a>
+            <a href="/client/chat" class="nav-item">
+                <span>💬</span> Chat
+            </a>
+            <a href="/client/progress" class="nav-item active">
+                <span>📈</span> Meu Progresso
+            </a>
+            <a href="/client/profile" class="nav-item">
+                <span>👤</span> Meu Perfil
+            </a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main">
+        <div class="section-header">
+            <h1>Meu Progresso</h1>
+            <p>Acompanhe sua evolução e conquistas</p>
+        </div>
+
+        <!-- Estatísticas Gerais -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💪</div>
+                <div class="stat-info">
+                    <h3><%= progress.total_workouts || 0 %></h3>
+                    <p>Treinos Realizados</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3><%= progress.completed_workouts || 0 %></h3>
+                    <p>Treinos Concluídos</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-info">
+                    <h3><%= progress.avg_rating ? progress.avg_rating.toFixed(1) : '0.0' %></h3>
+                    <p>Nota Média</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3><%= calculateConsistency(progress) %>%</h3>
+                    <p>Consistência</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos de Progresso -->
+        <div class="section">
+            <h2>Evolução do Desempenho</h2>
+            <div class="progress-charts">
+                <div class="chart-placeholder">
+                    <div class="chart-icon">📊</div>
+                    <h3>Gráficos em Desenvolvimento</h3>
+                    <p>Em breve você poderá visualizar gráficos detalhados do seu progresso!</p>
+                    <div class="chart-stats">
+                        <div class="mini-stat">
+                            <span class="label">Frequência Semanal</span>
+                            <span class="value">3/5 dias</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="label">Progresso Mensal</span>
+                            <span class="value">+15%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metas e Objetivos -->
+        <div class="section">
+            <div class="section-header">
+                <h2>Minhas Metas</h2>
+                <button class="btn btn-primary" onclick="showGoalModal()">+ Nova Meta</button>
+            </div>
+
+            <div class="goals-grid">
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <h3>💪 Ganho de Massa Muscular</h3>
+                        <span class="goal-status in-progress">Em Andamento</span>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 65%"></div>
+                        </div>
+                        <span class="progress-text">65% completo</span>
+                    </div>
+                    <p class="goal-desc">Aumentar massa muscular em 5kg</p>
+                    <div class="goal-meta">
+                        <span>Início: 01/01/2024</span>
+                        <span>Previsão: 01/04/2024</span>
+                    </div>
+                </div>
+
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <h3>🏃‍♂️ Melhorar Resistência</h3>
+                        <span class="goal-status completed">Concluído</span>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text">100% completo</span>
+                    </div>
+                    <p class="goal-desc">Correr 5km sem parar</p>
+                    <div class="goal-meta">
+                        <span>Concluído: 15/12/2023</span>
+                    </div>
+                </div>
+
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <h3>🧘‍♀️ Flexibilidade</h3>
+                        <span class="goal-status not-started">Não Iniciado</span>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text">0% completo</span>
+                    </div>
+                    <p class="goal-desc">Melhorar flexibilidade geral</p>
+                    <div class="goal-meta">
+                        <span>Planejado para: 01/03/2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico de Conquistas -->
+        <div class="section">
+            <h2>Conquistas</h2>
+            <div class="achievements-grid">
+                <div class="achievement-card">
+                    <div class="achievement-icon">🔥</div>
+                    <h3>7 Dias Consecutivos</h3>
+                    <p>Treinou por 7 dias seguidos</p>
+                    <span class="achievement-date">Conquistado em: 10/01/2024</span>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">💯</div>
+                    <h3>Primeiro Mês</h3>
+                    <p>Completou 1 mês de treinos</p>
+                    <span class="achievement-date">Conquistado em: 15/12/2023</span>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">⭐</div>
+                    <h3>Avaliação 5 Estrelas</h3>
+                    <p>Primeiro treino com nota máxima</p>
+                    <span class="achievement-date">Conquistado em: 05/12/2023</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal de Nova Meta -->
+<div id="goalModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Nova Meta</h3>
+            <span class="close" onclick="closeGoalModal()">&times;</span>
+        </div>
+        <form id="goalForm">
+            <div class="form-group">
+                <label for="goalTitle">Título da Meta</label>
+                <input type="text" id="goalTitle" name="goalTitle" required 
+                       placeholder="Ex: Perder 5kg">
+            </div>
+            <div class="form-group">
+                <label for="goalDescription">Descrição</label>
+                <textarea id="goalDescription" name="goalDescription" rows="3"
+                          placeholder="Descreva sua meta..."></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="goalStart">Data de Início</label>
+                    <input type="date" id="goalStart" name="goalStart" required>
+                </div>
+                <div class="form-group">
+                    <label for="goalEnd">Data Prevista</label>
+                    <input type="date" id="goalEnd" name="goalEnd" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Criar Meta</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function calculateConsistency(progress) {
+    if (!progress.total_workouts || !progress.completed_workouts) return 0;
+    return Math.round((progress.completed_workouts / progress.total_workouts) * 100);
+}
+
+function showGoalModal() {
+    document.getElementById('goalModal').style.display = 'block';
+}
+
+function closeGoalModal() {
+    document.getElementById('goalModal').style.display = 'none';
+}
+
+document.getElementById('goalForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showNotification('Meta criada com sucesso!', 'success');
+    closeGoalModal();
+    this.reset();
+});
+
+// Fechar modal ao clicar fora
+window.addEventListener('click', function(e) {
+    const modal = document.getElementById('goalModal');
+    if (e.target === modal) {
+        closeGoalModal();
+    }
+});
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        z-index: 1000;
+        background: ${type === 'success' ? '#10b981' : '#ef4444'};
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+</script>
+
+<style>
+.progress-charts {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.chart-placeholder {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+}
+
+.chart-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.chart-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.mini-stat {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.mini-stat .label {
+    display: block;
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.mini-stat .value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #4361ee;
+}
+
+.goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.goal-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.goal-header h3 {
+    margin: 0;
+    color: #343a40;
+}
+
+.goal-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.goal-status.in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.goal-status.completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.goal-status.not-started {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+.goal-progress {
+    margin-bottom: 1rem;
+}
+
+.progress {
+    background: #e9ecef;
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #4361ee;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.goal-desc {
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.goal-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.achievement-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.achievement-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.achievement-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #343a40;
+}
+
+.achievement-card p {
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.achievement-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+</style>
+
+<%- include('../partials/footer') %>
